@@ -23,6 +23,38 @@ LATEST RUN
 ==============================================================================
 
 Run ID:
+2026-08-03T00:40:00+07:00
+
+Iteration:
+62
+
+Task:
+G5 Chem Lab polish — reduced-motion safeguards
+
+Changes:
+- Added `prefers-reduced-motion: reduce` overrides to injected interaction CSS in `js/lab-collide.js`.
+- Reduced-motion mode now disables tool coupling pulses, wrong-target pulse, flame flicker, reaction animation, and reaction color transition while preserving static visual state.
+- Updated `tests/lab-collide.spec.js` mock DOM to capture injected head styles.
+- Added focused regression coverage asserting tool, flame, and reaction style blocks include the reduced-motion override.
+- Updated `STATE.md` to mark this G5 polish slice done and keep G5 feedback accessibility queued.
+
+Tests:
+- Syntax: `node --check js/lab-collide.js` -> pass.
+- Targeted: `node --max-old-space-size=512 --test --test-concurrency=1 tests/lab-chem.spec.js tests/lab-collide.spec.js` -> 41/41 pass.
+- Full root low-memory suite: `npm test` -> 83/83 pass.
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+G5 feedback accessibility polish
+
+-------------------------------------------------------------------------------
+
+Run ID:
 2026-08-03T00:20:00+07:00
 
 Iteration:

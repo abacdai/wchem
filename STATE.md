@@ -14,7 +14,7 @@ Status:
 🟢 Active Development
 
 Last Updated:
-2026-08-03 00:20:00 +07:00
+2026-08-03 00:40:00 +07:00
 
 Current Cadence:
 Minimal Loop
@@ -23,7 +23,7 @@ Current Phase:
 DONE
 
 Iteration:
-61
+62
 
 # ============================================================================
 # MASTER GOAL
@@ -45,23 +45,23 @@ Task ID:
 G5
 
 Task Title:
-Chem Lab polish pass
+Chem Lab polish pass — feedback accessibility
 
 Objective:
-Per docs/CHEM-LAB-ROADMAP.md G5: polish the chemistry lab UI/UX, reduced-motion behavior, audio/feedback, performance, and documentation after Layer 3 completion.
+Per docs/CHEM-LAB-ROADMAP.md G5: continue polishing feedback accessibility after adding reduced-motion safeguards to lab interaction animations.
 
 Expected Result:
-The hand-controlled chemistry lab feels more complete and polished without regressions.
+Feedback remains accessible and stable while the hand-controlled chemistry lab polish continues.
 
 Success Criteria:
 
-- Polish target is selected and scoped safely.
-- Existing hand tracking, bench, reaction, and observer flows remain stable.
+- Next polish target is selected and scoped safely.
+- Existing hand tracking, bench, reaction, observer, and challenge flows remain stable.
 - Relevant tests stay green; STATE/log updated.
 - All existing tests still pass; STATE/log updated.
 
 Dependencies:
-T-058 (optional challenge) — DONE
+G5 reduced-motion safeguards — DONE
 
 Priority:
 High
@@ -485,7 +485,7 @@ High
 # NEXT TASK QUEUE
 # ============================================================================
 
-1. G5: Chem Lab polish — UI/UX, reduced-motion, feedback, performance, docs.
+1. G5: Chem Lab polish — feedback accessibility, UI/UX, performance, docs.
 2. Add /api/health UptimeRobot monitor (optional).
 3. Continue FPS improvement beyond 26 (lower priority).
 
@@ -563,6 +563,8 @@ High
 - T-057: Quan sát & hướng dẫn (observer panel). Done. js/lab-collide.js existing #lab-observer flow was extended so each reaction entry includes balanced equation, explicit reaction status (gas/precipitate/solution), products with phases, product color, and conclusion; target.state.observer now stores the status alongside equation/products/color/conclusion. Console logging now records the full observation step (equation + status + products + color + conclusion) and the pour log falls back to post-reaction products when the source emptied, so logs no longer say generic liquid after a reactive pour. Reset remains wired to clear entries, restore "Chưa có phản ứng.", call labScene.resetBench(), and log the retry. Verified 81/81 root low-memory tests; targeted lab-chem + lab-collide 39/39; node --check clean for js/lab-collide.js. No new deps; lab.html/hand-bridge/gaze untouched. Next: T-058 optional guided experiment challenge.
 
 - T-058: Thử thách thí nghiệm (optional challenge). Done. js/lab-collide.js now adds a small active challenge section to the existing #lab-observer panel: "Thử thách: Điều chế CO2" instructs users to mix CH3COOH with NaHCO3. When a reaction produces CO2, the challenge marks complete, stores target.state.observer.challenge = "complete", logs completion, and shows "Điểm: 1/1"; observer reset clears entries, reactivates the challenge, resets the bench, and keeps the retry flow. tests/lab-collide.spec.js covers challenge completion and reset. Verified 82/82 root low-memory tests; targeted lab-chem + lab-collide 40/40; node --check clean for js/lab-collide.js. No new deps; lab.html/hand-bridge/gaze untouched. Next: G5 polish pass.
+
+- G5 polish: Reduced-motion safeguards. Done. js/lab-collide.js injected CSS for tool coupling pulses, wrong-target feedback, burner flame flicker, and reaction animations now includes @media (prefers-reduced-motion: reduce) overrides that disable animation/transition while preserving static visual state. tests/lab-collide.spec.js mock DOM now captures injected head styles and asserts all three style blocks include the reduced-motion media query. Verified 83/83 root low-memory tests; targeted lab-chem + lab-collide 41/41; node --check clean for js/lab-collide.js. No new deps; lab.html/hand-bridge/gaze untouched. Next: continue G5 feedback accessibility polish.
 
 - T-050: Pour coupling (ống → bình). Done. Layer 2 coupling engine extended
   in js/lab-collide.js (2 code files: lab-collide.js + lab-scene.js state
@@ -915,10 +917,10 @@ Simulation Engine
 Last Test Run
 
 Total:
-82 (Wchem root harness + lab-scene + lab-collide + lab-chem) — backend 36/36 separately
+83 (Wchem root harness + lab-scene + lab-collide + lab-chem) — backend 36/36 separately
 
 Passed:
-82
+83
 
 Failed:
 0
@@ -931,8 +933,8 @@ Backend 80+/75+/80+/80+ met; frontend 80/70/80/80 met (thresholds enforced)
 
 Last Failed Tests
 
-- None. Wchem root suite 82/82 (npm test, low-memory); targeted lab-chem +
-  lab-collide 40/40; node --check clean for js/lab-collide.js; taskflow backend
+- None. Wchem root suite 83/83 (npm test, low-memory); targeted lab-chem +
+  lab-collide 41/41; node --check clean for js/lab-collide.js; taskflow backend
   36/36 from previous backend run.
 
 # ============================================================================

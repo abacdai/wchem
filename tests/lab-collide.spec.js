@@ -40,6 +40,7 @@ function loadLab(withBench) {
   const document = {
     readyState: 'complete',
     createElement() { return makeEl('div'); },
+    head: { appendChild(child) { elements[child.id] = child; child.parentNode = this; return child; } },
     body: { appendChild(child) { elements[child.id] = child; child.parentNode = this; return child; } },
     getElementById(id) { return (id === 'lab-bench' && bench) ? bench : (elements[id] || null); },
     addEventListener() {},
@@ -154,6 +155,13 @@ test('auto-init wires window.labCollide on the mounted scene', () => {
   assert.ok(labScene, 'scene must auto-mount');
   assert.ok(labCollide, 'collide tracker must auto-wire');
   assert.equal(labCollide.scene, labScene, 'tracker must observe the mounted scene');
+});
+
+test('injected interaction styles honor reduced-motion preference', () => {
+  const { document } = loadLab(true);
+  assert.match(document.getElementById('lab-tool-style').textContent, /prefers-reduced-motion: reduce/, 'tool feedback styles must include reduced-motion override');
+  assert.match(document.getElementById('lab-flame-style').textContent, /prefers-reduced-motion: reduce/, 'flame styles must include reduced-motion override');
+  assert.match(document.getElementById('lab-reaction-style').textContent, /prefers-reduced-motion: reduce/, 'reaction styles must include reduced-motion override');
 });
 
 test('spawnNode initializes a liquid state on every node', () => {

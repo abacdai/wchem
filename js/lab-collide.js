@@ -42,7 +42,8 @@
     '@keyframes lab-pulse-a{from{box-shadow:0 0 0 2px rgba(192,132,44,.35)}to{box-shadow:0 0 0 5px rgba(192,132,44,.6)}}' +
     '@keyframes lab-pulse-b{from{box-shadow:0 0 0 2px rgba(127,149,255,.3)}to{box-shadow:0 0 0 5px rgba(127,149,255,.55)}}' +
     '@keyframes lab-pulse-c{from{box-shadow:0 0 0 2px rgba(21,128,61,.3)}to{box-shadow:0 0 0 5px rgba(21,128,61,.55)}}' +
-    '@keyframes lab-wrong{0%,100%{box-shadow:0 0 0 2px rgba(220,38,38,.4)}50%{box-shadow:0 0 0 6px rgba(220,38,38,.7)}}';
+    '@keyframes lab-wrong{0%,100%{box-shadow:0 0 0 2px rgba(220,38,38,.4)}50%{box-shadow:0 0 0 6px rgba(220,38,38,.7)}}' +
+    '@media (prefers-reduced-motion: reduce){.lab-stirring,.lab-filtering,.lab-sealed,.lab-wrong{animation:none!important}}';
 
   function ensureToolStyles() {
     if (typeof document === 'undefined') return;
@@ -60,7 +61,8 @@
     'width:72%;height:34px;background:radial-gradient(50% 70% at 50% 82%,#fff8c4 0%,#ffb347 45%,rgba(255,120,40,0) 75%);' +
     'border-radius:50% 50% 30% 30%;animation:lab-flicker .22s infinite alternate;pointer-events:none}' +
     '@keyframes lab-flicker{from{transform:translateX(-50%) scaleY(1);opacity:.85}' +
-    'to{transform:translateX(-50%) scaleY(1.3) translateY(-3px);opacity:1}}';
+    'to{transform:translateX(-50%) scaleY(1.3) translateY(-3px);opacity:1}}' +
+    '@media (prefers-reduced-motion: reduce){.lab-flame{animation:none!important;opacity:.95}}';
 
   /* Tiêm CSS ngọn lửa một lần (chỉ ở trình duyệt thật; VM test bỏ qua). */
   function ensureFlameStyles() {
@@ -81,7 +83,8 @@
     '.lab-reaction-color{transition:background .32s ease-out}' +
     '@keyframes lab-bubble-glow{0%{box-shadow:inset 0 -18px 0 rgba(255,255,255,.12),0 0 0 0 rgba(125,211,252,.55)}45%{box-shadow:inset 0 -18px 0 rgba(255,255,255,.28),0 -18px 0 6px rgba(125,211,252,.28)}100%{box-shadow:inset 0 -18px 0 rgba(255,255,255,.1),0 -34px 0 0 rgba(125,211,252,0)}}' +
     '@keyframes lab-gas-rise{0%{box-shadow:0 0 0 0 rgba(229,231,235,.55)}60%{box-shadow:0 -28px 0 7px rgba(229,231,235,.22)}100%{box-shadow:0 -44px 0 0 rgba(229,231,235,0)}}' +
-    '@keyframes lab-precip-cloud{0%{opacity:1}50%{opacity:.72}100%{opacity:1}}';
+    '@keyframes lab-precip-cloud{0%{opacity:1}50%{opacity:.72}100%{opacity:1}}' +
+    '@media (prefers-reduced-motion: reduce){.lab-reaction-bubbles,.lab-reaction-gas,.lab-reaction-precipitate{animation:none!important}.lab-reaction-color{transition:none!important}}';
 
   function ensureReactionStyles() {
     if (typeof document === 'undefined') return;
