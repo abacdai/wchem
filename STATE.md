@@ -14,7 +14,7 @@ Status:
 🟢 Active Development
 
 Last Updated:
-2026-08-02 13:02:54 +07:00
+2026-08-03 00:00:00 +07:00
 
 Current Cadence:
 Minimal Loop
@@ -23,7 +23,7 @@ Current Phase:
 DONE
 
 Iteration:
-59
+60
 
 # ============================================================================
 # MASTER GOAL
@@ -42,26 +42,26 @@ The AI MUST perform only minimal safe modifications.
 # ============================================================================
 
 Task ID:
-T-057
+T-058
 
 Task Title:
-Layer 3: Quan sát & hướng dẫn (observer panel)
+Layer 3: Thử thách thí nghiệm (optional challenge)
 
 Objective:
-Per docs/CHEM-LAB-ROADMAP.md Lớp 3 item 4: bảng "Quan sát" hiển thị phương trình cân bằng, trạng thái, màu sắc, kết luận; console log từng bước; nút "Làm lại".
+Per docs/CHEM-LAB-ROADMAP.md Lớp 3 item 5: optional guided experiment challenge flow, e.g. prepare CO2 or identify acid/base; score and persistence optional.
 
 Expected Result:
-Observer panel gives clear reaction guidance/results and supports resetting the observation flow.
+Challenge flow guides a small target experiment without regressing the hand-controlled bench.
 
 Success Criteria:
 
-- Observation panel shows balanced equation, states/colors, and conclusion.
-- Console/log records the main experiment steps.
-- Reset/retry flow works without bench regressions.
+- Challenge target and success condition are visible.
+- Completed reaction can be recognized from lab state/observer output.
+- Retry/reset flow works without bench regressions.
 - All existing tests still pass; STATE/log updated.
 
 Dependencies:
-T-056 (reaction animation) — DONE
+T-057 (observer panel/guidance) — DONE
 
 Priority:
 High
@@ -485,7 +485,7 @@ High
 # NEXT TASK QUEUE
 # ============================================================================
 
-1. T-057 → T-058: Layer 3 — observation panel/guidance, challenge.
+1. T-058: Layer 3 — optional guided experiment challenge.
 2. Add /api/health UptimeRobot monitor (optional).
 3. Continue FPS improvement beyond 26 (lower priority).
 
@@ -559,6 +559,8 @@ High
 - T-055: Trạng thái dung dịch (solution state of matter). Done. js/lab-collide.js extended with: (1) PHASE lookup table mapping common substance formulas to 's'/'l'/'g' at room temperature; (2) getPhase(substance) helper returning phase for display; (3) PRODUCT_COLORS lookup table mapping product formulas to their characteristic rgba color; (4) getProductColor(reaction) helper returning the first product's color from a reaction; (5) _pour updated to use the reaction engine (window.labChem.react) when source and target have different substances — product color comes from getProductColor, falling back to mixColors channel-average; (6) substances array added to vessel state (node.state.substances) initialized in spawnNode and copy state in lab-scene.js; (7) getPhase used for product phase display. All 50/50 tests pass (harness 13/13 + lab-collide 25/25 + lab-chem 12/12); eslint clean; no new deps; lab.html/hand-bridge/gaze untouched. Next: T-056 reaction animation.
 
 - T-056: Animation phản ứng (reaction animation). Done. Existing implementation in js/lab-collide.js verified: reactive pours call window.labChem.react, set target product color/substance, add reaction animation classes (bubbles/gas/precipitate/color transition), create/update #lab-observer with balanced equation and product list, and store observer text on target state. Verified 80/80 root tests with low-memory runner; targeted lab-chem + lab-collide 38/38; node --check clean for js/lab-collide.js, js/lab-chem.js, js/lab-scene.js. No new deps; lab.html/hand-bridge/gaze untouched. Next: T-057 observation panel/guidance.
+
+- T-057: Quan sát & hướng dẫn (observer panel). Done. js/lab-collide.js existing #lab-observer flow was extended so each reaction entry includes balanced equation, explicit reaction status (gas/precipitate/solution), products with phases, product color, and conclusion; target.state.observer now stores the status alongside equation/products/color/conclusion. Console logging now records the full observation step (equation + status + products + color + conclusion) and the pour log falls back to post-reaction products when the source emptied, so logs no longer say generic liquid after a reactive pour. Reset remains wired to clear entries, restore "Chưa có phản ứng.", call labScene.resetBench(), and log the retry. Verified 81/81 root low-memory tests; targeted lab-chem + lab-collide 39/39; node --check clean for js/lab-collide.js. No new deps; lab.html/hand-bridge/gaze untouched. Next: T-058 optional guided experiment challenge.
 
 - T-050: Pour coupling (ống → bình). Done. Layer 2 coupling engine extended
   in js/lab-collide.js (2 code files: lab-collide.js + lab-scene.js state
@@ -911,10 +913,10 @@ Simulation Engine
 Last Test Run
 
 Total:
-80 (Wchem root harness + lab-scene + lab-collide + lab-chem) — backend 36/36 separately
+81 (Wchem root harness + lab-scene + lab-collide + lab-chem) — backend 36/36 separately
 
 Passed:
-80
+81
 
 Failed:
 0
@@ -927,8 +929,8 @@ Backend 80+/75+/80+/80+ met; frontend 80/70/80/80 met (thresholds enforced)
 
 Last Failed Tests
 
-- None. Wchem root suite 80/80 (npm test, low-memory); targeted lab-chem +
-  lab-collide 38/38; node --check clean for lab modules; taskflow backend
+- None. Wchem root suite 81/81 (npm test, low-memory); targeted lab-chem +
+  lab-collide 39/39; node --check clean for js/lab-collide.js; taskflow backend
   36/36 from previous backend run.
 
 # ============================================================================

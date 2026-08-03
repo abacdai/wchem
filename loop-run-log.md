@@ -23,6 +23,38 @@ LATEST RUN
 ==============================================================================
 
 Run ID:
+2026-08-03T00:00:00+07:00
+
+Iteration:
+60
+
+Task:
+T-057 Layer 3: Quan sát & hướng dẫn (observer panel)
+
+Changes:
+- Resumed from STATE.md/loop-run-log.md (agentmemory had no matching sessions) and confirmed the active checkpoint was T-057.
+- Extended `js/lab-collide.js` observer entries with explicit reaction status, while preserving balanced equation, products with phases, product color, conclusion, and reset behavior.
+- Improved console logging: observation logs now include equation/status/products/color/conclusion, and pour logs use post-reaction products when the source empties.
+- Added focused assertions in `tests/lab-collide.spec.js` for observer status and post-reaction pour logging.
+- Updated `STATE.md` to mark T-057 done and set next current task to T-058 optional challenge.
+
+Tests:
+- Syntax: `node --check js/lab-collide.js` -> pass.
+- Targeted: `node --max-old-space-size=512 --test --test-concurrency=1 tests/lab-chem.spec.js tests/lab-collide.spec.js` -> 39/39 pass.
+- Full root low-memory suite: `npm test` -> 81/81 pass.
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+T-058 Layer 3: Thử thách thí nghiệm (optional challenge)
+
+-------------------------------------------------------------------------------
+
+Run ID:
 2026-08-02T13:02:54+07:00
 
 Iteration:

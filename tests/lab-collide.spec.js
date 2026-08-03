@@ -436,11 +436,14 @@ test('reactive pours animate the target and record the observation', () => {
   assert.equal(flask.state.color, 'rgba(0,100,180,0.7)', 'target must use the product color');
   assert.ok(flask.element().classList.adds.includes('lab-reaction-precipitate'), 'precipitate reaction class must animate the target');
   assert.match(flask.state.observerText, /CuSO4\(aq\).*Cu\(OH\)2\(s\)/, 'observation must include the balanced equation');
+  assert.match(flask.state.observerText, /Trạng thái: Có kết tủa/, 'observation must include the reaction state');
   assert.match(flask.state.observerText, /Màu: rgba\(0,100,180,0\.7\).*Kết luận:/, 'observation must include color and conclusion');
+  assert.equal(flask.state.observer.status, 'Có kết tủa', 'observer state must keep the reaction status');
   assert.equal(flask.state.observer.products, 'Cu(OH)2(s) + Na2SO4(l)', 'observer state must keep product phases');
   assert.match(document.getElementById('lab-observer')._list.children[0].textContent, /Sản phẩm: Cu\(OH\)2\(s\) \+ Na2SO4\(l\)/, 'observer panel must record products with phases');
   assert.match(document.getElementById('lab-observer')._summary.textContent, /Precipitation: Cu\(OH\)2\(s\)/, 'summary must guide the current observation');
-  assert.ok(logs.some((line) => line.includes('Quan sát phản ứng: CuSO4(aq)')), 'console must log the observation step');
+  assert.ok(logs.some((line) => line.includes('Quan sát phản ứng: CuSO4(aq)') && line.includes('Có kết tủa') && line.includes('màu rgba(0,100,180,0.7)')), 'console must log the full observation step');
+  assert.ok(logs.some((line) => line.includes('Đã đổ 35% Cu(OH)2(s) + Na2SO4(l) vào flask')), 'console must log the post-reaction pour result');
 });
 
 test('the observer reset button clears observations and resets the bench', () => {

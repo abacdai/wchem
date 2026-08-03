@@ -259,21 +259,24 @@
     }).join(' + ');
     var color = target && target.state && target.state.color ? target.state.color : 'không đổi';
     var conclusion = reaction.note || reaction.type || 'Phản ứng đã xảy ra.';
-    item.textContent = 'Phương trình: ' + reaction.balanced + ' — Sản phẩm: ' + products +
-      ' — Màu: ' + color + ' — Kết luận: ' + conclusion;
+    var status = hasProductPhase(reaction, 'g') ? 'Có khí thoát ra' :
+      (hasProductPhase(reaction, 's') ? 'Có kết tủa' : 'Dung dịch sau phản ứng');
+    item.textContent = 'Phương trình: ' + reaction.balanced + ' — Trạng thái: ' + status +
+      ' — Sản phẩm: ' + products + ' — Màu: ' + color + ' — Kết luận: ' + conclusion;
     if (panel._list) panel._list.appendChild(item);
     else panel.appendChild(item);
     if (panel._summary) panel._summary.textContent = reaction.type + ': ' + products;
     if (target && target.state) {
       target.state.observer = {
         equation: reaction.balanced,
+        status: status,
         products: products,
         color: color,
         conclusion: conclusion,
       };
       target.state.observerText = item.textContent;
     }
-    console.log('Quan sát phản ứng: ' + reaction.balanced + ' | ' + products);
+    console.log('Quan sát phản ứng: ' + reaction.balanced + ' | ' + status + ' | ' + products + ' | màu ' + color + ' | ' + conclusion);
   }
 
   /* Vẽ mực chất lỏng: gradient phủ từ đáy lên theo fill; lưu background gốc
@@ -484,6 +487,7 @@
 
   CollideTracker.prototype._logPour = function (source, target, amount) {
     var sub = source.state ? source.state.substance : null;
+    if (!sub && target.state && target.state.observer && target.state.observer.products) sub = target.state.observer.products;
     var name = sub || 'chất lỏng';
     var pct = Math.round(amount * 100);
     console.log('Đã đổ ' + pct + '% ' + name + ' vào ' + (target.state ? target.type : 'vật'));
