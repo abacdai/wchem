@@ -464,3 +464,25 @@ test('the observer reset button clears observations and resets the bench', () =>
   assert.equal(panel._summary.textContent, 'Chưa có phản ứng.', 'reset must restore empty guidance');
   assert.equal(resets, 1, 'reset must call labScene.resetBench');
 });
+
+test('the CO2 challenge completes on a matching acid-carbonate reaction and resets', () => {
+  const { scene, press, move, up, document, logs } = makeScene();
+  let resets = 0;
+  scene.resetBench = () => { resets += 1; };
+  const flask = scene.spawnNode('flask', { x: 208, y: 60, w: 92, h: 84 });
+  const tube = scene.spawnNode('tube', { x: 336, y: 60, w: 46, h: 120 });
+  flask.state = { fill: 0.45, color: 'rgba(214,208,192,0.55)', substance: 'CH3COOH' };
+  tube.state = { fill: 0.35, color: 'rgba(200,215,230,0.5)', substance: 'NaHCO3' };
+  press(7, 350, 80);
+  move(7, 280, 100);
+  up(7, 280, 100);
+  const panel = document.getElementById('lab-observer');
+  assert.equal(panel._challenge.getAttribute('data-challenge-status'), 'complete', 'CO2 product must complete the challenge');
+  assert.match(panel._challenge.textContent, /Hoàn thành: đã điều chế CO2/, 'challenge panel must show completion');
+  assert.equal(flask.state.observer.challenge, 'complete', 'observer state must store challenge completion');
+  assert.ok(logs.some((line) => line.includes('Hoàn thành thử thách: Thử thách: Điều chế CO2')), 'console must log challenge completion');
+  panel._reset.listeners.click();
+  assert.equal(panel._challenge.getAttribute('data-challenge-status'), 'active', 'reset must reactivate the challenge');
+  assert.match(panel._challenge.textContent, /Trộn axit axetic|Tạo khí CO2/, 'reset must restore challenge guidance');
+  assert.equal(resets, 1, 'challenge reset must reuse bench reset');
+});

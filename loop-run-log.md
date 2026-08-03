@@ -23,6 +23,38 @@ LATEST RUN
 ==============================================================================
 
 Run ID:
+2026-08-03T00:20:00+07:00
+
+Iteration:
+61
+
+Task:
+T-058 Layer 3: Thử thách thí nghiệm (optional challenge)
+
+Changes:
+- Added a minimal built-in CO2 challenge to the existing `#lab-observer` panel in `js/lab-collide.js`.
+- Challenge starts active with guidance to mix CH3COOH + NaHCO3, completes when a reaction produces CO2, shows score 1/1, stores `target.state.observer.challenge = "complete"`, and logs completion.
+- Observer reset now also reactivates the challenge while preserving the existing bench reset flow.
+- Added `tests/lab-collide.spec.js` coverage for CO2 challenge completion and reset.
+- Updated `STATE.md` to mark T-058 done and queue the G5 polish pass.
+
+Tests:
+- Syntax: `node --check js/lab-collide.js` -> pass.
+- Targeted: `node --max-old-space-size=512 --test --test-concurrency=1 tests/lab-chem.spec.js tests/lab-collide.spec.js` -> 40/40 pass.
+- Full root low-memory suite: `npm test` -> 82/82 pass.
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+G5 Chem Lab polish pass
+
+-------------------------------------------------------------------------------
+
+Run ID:
 2026-08-03T00:00:00+07:00
 
 Iteration:

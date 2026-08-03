@@ -14,7 +14,7 @@ Status:
 🟢 Active Development
 
 Last Updated:
-2026-08-03 00:00:00 +07:00
+2026-08-03 00:20:00 +07:00
 
 Current Cadence:
 Minimal Loop
@@ -23,7 +23,7 @@ Current Phase:
 DONE
 
 Iteration:
-60
+61
 
 # ============================================================================
 # MASTER GOAL
@@ -42,26 +42,26 @@ The AI MUST perform only minimal safe modifications.
 # ============================================================================
 
 Task ID:
-T-058
+G5
 
 Task Title:
-Layer 3: Thử thách thí nghiệm (optional challenge)
+Chem Lab polish pass
 
 Objective:
-Per docs/CHEM-LAB-ROADMAP.md Lớp 3 item 5: optional guided experiment challenge flow, e.g. prepare CO2 or identify acid/base; score and persistence optional.
+Per docs/CHEM-LAB-ROADMAP.md G5: polish the chemistry lab UI/UX, reduced-motion behavior, audio/feedback, performance, and documentation after Layer 3 completion.
 
 Expected Result:
-Challenge flow guides a small target experiment without regressing the hand-controlled bench.
+The hand-controlled chemistry lab feels more complete and polished without regressions.
 
 Success Criteria:
 
-- Challenge target and success condition are visible.
-- Completed reaction can be recognized from lab state/observer output.
-- Retry/reset flow works without bench regressions.
+- Polish target is selected and scoped safely.
+- Existing hand tracking, bench, reaction, and observer flows remain stable.
+- Relevant tests stay green; STATE/log updated.
 - All existing tests still pass; STATE/log updated.
 
 Dependencies:
-T-057 (observer panel/guidance) — DONE
+T-058 (optional challenge) — DONE
 
 Priority:
 High
@@ -485,7 +485,7 @@ High
 # NEXT TASK QUEUE
 # ============================================================================
 
-1. T-058: Layer 3 — optional guided experiment challenge.
+1. G5: Chem Lab polish — UI/UX, reduced-motion, feedback, performance, docs.
 2. Add /api/health UptimeRobot monitor (optional).
 3. Continue FPS improvement beyond 26 (lower priority).
 
@@ -561,6 +561,8 @@ High
 - T-056: Animation phản ứng (reaction animation). Done. Existing implementation in js/lab-collide.js verified: reactive pours call window.labChem.react, set target product color/substance, add reaction animation classes (bubbles/gas/precipitate/color transition), create/update #lab-observer with balanced equation and product list, and store observer text on target state. Verified 80/80 root tests with low-memory runner; targeted lab-chem + lab-collide 38/38; node --check clean for js/lab-collide.js, js/lab-chem.js, js/lab-scene.js. No new deps; lab.html/hand-bridge/gaze untouched. Next: T-057 observation panel/guidance.
 
 - T-057: Quan sát & hướng dẫn (observer panel). Done. js/lab-collide.js existing #lab-observer flow was extended so each reaction entry includes balanced equation, explicit reaction status (gas/precipitate/solution), products with phases, product color, and conclusion; target.state.observer now stores the status alongside equation/products/color/conclusion. Console logging now records the full observation step (equation + status + products + color + conclusion) and the pour log falls back to post-reaction products when the source emptied, so logs no longer say generic liquid after a reactive pour. Reset remains wired to clear entries, restore "Chưa có phản ứng.", call labScene.resetBench(), and log the retry. Verified 81/81 root low-memory tests; targeted lab-chem + lab-collide 39/39; node --check clean for js/lab-collide.js. No new deps; lab.html/hand-bridge/gaze untouched. Next: T-058 optional guided experiment challenge.
+
+- T-058: Thử thách thí nghiệm (optional challenge). Done. js/lab-collide.js now adds a small active challenge section to the existing #lab-observer panel: "Thử thách: Điều chế CO2" instructs users to mix CH3COOH with NaHCO3. When a reaction produces CO2, the challenge marks complete, stores target.state.observer.challenge = "complete", logs completion, and shows "Điểm: 1/1"; observer reset clears entries, reactivates the challenge, resets the bench, and keeps the retry flow. tests/lab-collide.spec.js covers challenge completion and reset. Verified 82/82 root low-memory tests; targeted lab-chem + lab-collide 40/40; node --check clean for js/lab-collide.js. No new deps; lab.html/hand-bridge/gaze untouched. Next: G5 polish pass.
 
 - T-050: Pour coupling (ống → bình). Done. Layer 2 coupling engine extended
   in js/lab-collide.js (2 code files: lab-collide.js + lab-scene.js state
@@ -913,10 +915,10 @@ Simulation Engine
 Last Test Run
 
 Total:
-81 (Wchem root harness + lab-scene + lab-collide + lab-chem) — backend 36/36 separately
+82 (Wchem root harness + lab-scene + lab-collide + lab-chem) — backend 36/36 separately
 
 Passed:
-81
+82
 
 Failed:
 0
@@ -929,8 +931,8 @@ Backend 80+/75+/80+/80+ met; frontend 80/70/80/80 met (thresholds enforced)
 
 Last Failed Tests
 
-- None. Wchem root suite 81/81 (npm test, low-memory); targeted lab-chem +
-  lab-collide 39/39; node --check clean for js/lab-collide.js; taskflow backend
+- None. Wchem root suite 82/82 (npm test, low-memory); targeted lab-chem +
+  lab-collide 40/40; node --check clean for js/lab-collide.js; taskflow backend
   36/36 from previous backend run.
 
 # ============================================================================

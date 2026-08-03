@@ -170,6 +170,21 @@
     return product && product.formula ? product.formula : product;
   }
 
+  var ACTIVE_CHALLENGE = {
+    id: 'prepare-co2',
+    title: 'Thử thách: Điều chế CO2',
+    instruction: 'Tạo khí CO2 bằng cách trộn axit axetic (CH3COOH) với natri hidrocacbonat (NaHCO3).',
+    targetProduct: 'CO2',
+  };
+
+  function reactionHasProduct(reaction, formula) {
+    if (!reaction || !reaction.products) return false;
+    for (var i = 0; i < reaction.products.length; i++) {
+      if (getProductFormula(reaction.products[i]) === formula) return true;
+    }
+    return false;
+  }
+
   function hasProductPhase(reaction, phase) {
     if (!reaction || !reaction.products) return false;
     for (var i = 0; i < reaction.products.length; i++) {
@@ -226,6 +241,16 @@
       var list = document.createElement('div');
       list.className = 'lab-observer-list';
       panel.appendChild(list);
+      var challenge = document.createElement('div');
+      challenge.className = 'lab-challenge';
+      challenge.textContent = ACTIVE_CHALLENGE.title + ': ' + ACTIVE_CHALLENGE.instruction;
+      challenge.style.marginTop = '10px';
+      challenge.style.padding = '8px';
+      challenge.style.border = '1px solid rgba(125,211,252,.35)';
+      challenge.style.borderRadius = '10px';
+      challenge.style.background = 'rgba(125,211,252,.12)';
+      challenge.setAttribute('data-challenge-status', 'active');
+      panel.appendChild(challenge);
       var reset = document.createElement('button');
       reset.type = 'button';
       reset.textContent = 'Làm lại';
@@ -239,12 +264,15 @@
       reset.addEventListener('click', function () {
         while (list.children.length) list.removeChild(list.children[list.children.length - 1]);
         summary.textContent = 'Chưa có phản ứng.';
+        challenge.textContent = ACTIVE_CHALLENGE.title + ': ' + ACTIVE_CHALLENGE.instruction;
+        challenge.setAttribute('data-challenge-status', 'active');
         if (typeof window !== 'undefined' && window.labScene && window.labScene.resetBench) window.labScene.resetBench();
         console.log('Đã làm lại quan sát phản ứng');
       });
       panel.appendChild(reset);
       panel._summary = summary;
       panel._list = list;
+      panel._challenge = challenge;
       panel._reset = reset;
       if (document.body && document.body.appendChild) document.body.appendChild(panel);
     }
@@ -266,6 +294,11 @@
     if (panel._list) panel._list.appendChild(item);
     else panel.appendChild(item);
     if (panel._summary) panel._summary.textContent = reaction.type + ': ' + products;
+    if (panel._challenge && reactionHasProduct(reaction, ACTIVE_CHALLENGE.targetProduct)) {
+      panel._challenge.textContent = 'Hoàn thành: đã điều chế CO2. Điểm: 1/1.';
+      panel._challenge.setAttribute('data-challenge-status', 'complete');
+      console.log('Hoàn thành thử thách: ' + ACTIVE_CHALLENGE.title);
+    }
     if (target && target.state) {
       target.state.observer = {
         equation: reaction.balanced,
@@ -273,6 +306,7 @@
         products: products,
         color: color,
         conclusion: conclusion,
+        challenge: panel._challenge ? panel._challenge.getAttribute('data-challenge-status') : 'active',
       };
       target.state.observerText = item.textContent;
     }
