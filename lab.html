@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="description" content="HandScope Lab — vẽ và tương tác bằng cử chỉ tay">
+<meta name="theme-color" content="#3f56bc">
+<link rel="icon" type="image/png" href="assets/icon.png?v=4">
+<link rel="apple-touch-icon" href="assets/icon.png?v=4">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/design-tokens.css">
+<link rel="stylesheet" href="css/hand-bridge.css">
+<link rel="stylesheet" href="css/lab.css">
+<title>HandScope Lab</title>
+</head>
+<body>
+
+<div id="lab-root">
+  <aside class="lab-sidebar">
+    <div class="lab-sidebar-header">
+      <a href="index.html" class="lab-back-btn" title="Về trang chủ">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </a>
+      <img src="assets/icon.png" width="24" height="24" style="border-radius:50%;object-fit:cover;">
+      <div>
+        <div class="lab-sidebar-title">HandScope</div>
+        <div class="lab-sidebar-sub">Standalone demo</div>
+      </div>
+    </div>
+    <div class="lab-tab" data-tab="demo"><span class="material-symbols-outlined">science</span><span>Lab</span></div>
+    <div class="lab-tab" data-tab="calibration"><span class="material-symbols-outlined">visibility</span><span>Eye tracking</span></div>
+    <div class="lab-tab" data-tab="about"><span class="material-symbols-outlined">info</span><span>About</span></div>
+  </aside>
+
+  <div class="lab-main">
+    <div id="lab-viewport" class="lab-luminous">
+      <canvas id="lab-canvas"></canvas>
+      <div id="lab-viewportLabel"><span class="lab-dot"></span><span>GESTURE TRACKING</span></div>
+      <canvas id="kl-arCanvas"></canvas>
+      <div id="lab-bench" role="application" aria-label="Bàn thí nghiệm ảo"></div>
+      <button id="lab-resetBench" class="lab-panel-btn" style="position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:100001;" title="Đưa các dụng cụ về vị trí chuẩn" aria-label="Reset bàn thí nghiệm">
+        <span class="material-symbols-outlined" style="font-size:16px;">restart_alt</span> Reset bàn
+      </button>
+      <div id="lab-startOverlay" class="lab-start-overlay">
+        <button id="lab-startBtn" class="lab-start-btn">
+          <span class="material-symbols-outlined">videocam</span> Bắt đầu theo dõi tay
+        </button>
+      </div>
+      <div id="lab-viewportHint">
+        <div class="lab-ring"></div>
+        <div style="margin-top:-90px;display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <span class="material-symbols-outlined" style="font-size:32px;">front_hand</span>Awaiting Gesture...
+        </div>
+      </div>
+
+      <div id="lab-calibration">
+        <div>
+          <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Theo dõi ánh nhìn</div>
+          <p>Video được xử lý ngay trên thiết bị và không được tải lên. Hiệu chỉnh lại khi bạn đổi vị trí ngồi hoặc ánh sáng.</p>
+          <div id="lab-gazeState" class="lab-gaze-state" role="status">Chưa khởi động camera</div>
+          <div class="lab-gaze-actions">
+            <button id="lab-calibrateGaze" class="lab-panel-btn" disabled>Hiệu chỉnh 9 điểm</button>
+            <button id="lab-resetGaze" class="lab-panel-btn lab-panel-btn-secondary">Xóa hiệu chỉnh</button>
+          </div>
+        </div>
+        <div class="lab-panel-divider"></div>
+        <div>
+          <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Cử chỉ tay</div>
+          <p>Ngưỡng vào/thoát cách nhau càng lớn thì càng ít bị nhấp nháy, nhưng phản hồi sẽ trễ hơn.</p>
+        </div>
+        <div class="lab-field">
+          <label>Ngưỡng vào chụm <span id="lab-valEnter">0.14</span></label>
+          <input type="range" id="lab-sliderEnter" min="0.04" max="0.35" step="0.01" value="0.14">
+        </div>
+        <div class="lab-field">
+          <label>Ngưỡng thoát chụm <span id="lab-valExit">0.26</span></label>
+          <input type="range" id="lab-sliderExit" min="0.12" max="0.55" step="0.01" value="0.26">
+        </div>
+      </div>
+
+      <div id="lab-gazeCalibration" class="lab-gaze-calibration" aria-hidden="true">
+        <div id="lab-gazeTarget" class="lab-gaze-target"></div>
+        <div id="lab-gazeInstruction" class="lab-gaze-instruction" role="status">Nhìn vào điểm và giữ đầu ổn định</div>
+        <button id="lab-cancelCalibration" class="lab-cancel-calibration">Hủy</button>
+      </div>
+
+      <div id="lab-about">
+        <h2><span class="material-symbols-outlined" style="font-size:20px;">science</span> Về Phòng Thí Nghiệm Hóa</h2>
+        <p>Phòng thí nghiệm hóa học ảo điều khiển bằng tay qua webcam: kéo thả dụng cụ, đổ hóa chất, quan sát phản ứng — như nobook, nhưng tương tác bằng cử chỉ tay.</p>
+        <div class="lab-about-section">
+          <h3>Công nghệ</h3>
+          <ul>
+            <li>MediaPipe Hands (WASM/TFLite) — 21 điểm landmark/bàn tay</li>
+            <li>One-Euro filter — lọc nhiễu chuyển động thời gian thực</li>
+            <li>Chụm ngón cái + trỏ → kéo thả chuột trái</li>
+            <li>Nắm tay → chuột phải</li>
+            <li>Grace period 180ms — chống rung khi mất dấu ngắn</li>
+          </ul>
+        </div>
+        <div class="lab-about-section">
+          <h3>Kiến trúc</h3>
+          <ul>
+            <li>hand-bridge.js — theo dõi tay, phát sự kiện chuột thật</li>
+            <li>lab-scene.js — scene graph: dụng cụ trên bench, kéo thả</li>
+            <li>lab-collide.js — va chạm & ghép nối dụng cụ</li>
+            <li>lab-chem.js — logic hóa học & animation</li>
+          </ul>
+        </div>
+        <div class="lab-about-section">
+          <h3>Hướng dẫn</h3>
+          <ul>
+            <li>Cho phép truy cập camera khi trình duyệt hỏi</li>
+            <li>Chụm ngón cái + ngón trỏ để kéo thả dụng cụ</li>
+            <li>Kéo ống nghiệm/hoá chất tới miệng bình để đổ vào</li>
+            <li>Dùng thanh trượt Calibration để tinh chỉnh độ nhạy</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="lab-console">
+      <div class="lab-console-info">
+        <div class="lab-console-title">Console</div>
+        <div class="lab-console-desc">Nhật ký cử chỉ &amp; sự kiện</div>
+        <div class="lab-console-stats">
+          <span id="lab-statSource"></span><span id="lab-statGesture">—</span>
+        </div>
+      </div>
+      <div class="lab-console-box">
+        <div id="lab-console"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="lab-toast"></div>
+<button id="lab-stopTracking" class="lab-stop-tracking" hidden>
+  <span class="material-symbols-outlined">videocam_off</span><span>Tắt camera</span>
+</button>
+
+<script>window.HAND_SCOPE_MANUAL_START = true;</script>
+<script>window.HANDSCOPE_ENABLE_GAZE = true;</script>
+<script>window.HANDSCOPE_TARGET_SELECTOR = '#lab-bench';</script>
+<script src="js/pupil-detector.js"></script>
+<script src="js/gaze-pupil.js"></script>
+<script src="js/hand-bridge.js"></script>
+<script src="js/gaze.js"></script>
+<script src="js/lab.js"></script>
+<script src="js/lab-scene.js"></script>
+<script src="js/lab-collide.js"></script>
+</body>
+</html>

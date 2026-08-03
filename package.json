@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "test": "node --max-old-space-size=512 --test --test-concurrency=1 tests/*.spec.js",
+    "test:fast": "node --test tests/*.spec.js",
+    "benchmark": "node tests/benchmark.js"
+  }
+}

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<script>(function(){try{var t=localStorage.getItem('wchem-theme');if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
+<meta name="description" content="WChem VR — Thí nghiệm hóa học trong không gian ảo. Kết hợp AI, theo dõi tay và thực tế ảo.">
+<meta name="theme-color" content="#020617">
+<meta property="og:title" content="WChem VR — Chemistry Sandbox">
+<meta property="og:description" content="Xếp hạng, thành tích và thí nghiệm hóa học VR.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/icon.png">
+<link rel="icon" type="image/png" href="assets/icon.png?v=4">
+<link rel="apple-touch-icon" href="assets/icon.png?v=4">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/design-tokens.css">
+<link rel="stylesheet" href="css/card-nav.css">
+<link rel="stylesheet" href="css/landing.css">
+<title>WChem VR — Chemistry Sandbox</title>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════ NAVBAR ═══ -->
+<div id="card-nav-root" class="card-nav-container"></div>
+
+<!-- ═══════════════════════════════════════ HERO ═══ -->
+<section id="lp-root" class="hero-section">
+  <canvas id="lp-particles"></canvas>
+
+  <!-- Floating orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="hero-content">
+    <div class="lp-hero-badge">
+      <span class="material-symbols-outlined">science</span>
+      <span>WChem VR — Hóa học thực tế ảo</span>
+    </div>
+
+    <h1 class="lp-hero-title">
+      Thí nghiệm <span class="lp-gradient">hóa học</span><br>trong không gian ảo
+    </h1>
+
+    <p class="lp-hero-sub">
+      Kết hợp theo dõi tay, vật lý và AI để trộn phản ứng, vẽ cấu trúc phân tử và lưu lại thí nghiệm — ngay trên trình duyệt.
+    </p>
+
+    <div class="hero-actions">
+      <button id="lp-primaryStart" class="btn-primary">
+        <span class="material-symbols-outlined">experiment</span>
+        Mở Phòng Thí Nghiệm
+      </button>
+      <button class="btn-ghost" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">
+        <span class="material-symbols-outlined">arrow_downward</span>
+        Khám phá
+      </button>
+    </div>
+
+    <!-- Stats row -->
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-number">17</div>
+        <div class="stat-label">Nguyên tố</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-number">7</div>
+        <div class="stat-label">Thành tích</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-number">AI</div>
+        <div class="stat-label">Powered</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3D molecule visual -->
+  <div class="hero-visual">
+    <div class="molecule-ring ring-1"></div>
+    <div class="molecule-ring ring-2"></div>
+    <div class="molecule-ring ring-3"></div>
+    <!-- Animated atom nucleus (SVG) -->
+    <div class="molecule-center">
+      <svg class="nucleus-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <!-- Nucleus glow -->
+        <defs>
+          <radialGradient id="nucGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#7dd3fc"/>
+            <stop offset="60%" stop-color="#38bdf8" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#0284c7" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Outer glow halo -->
+        <circle cx="60" cy="60" r="52" fill="url(#nucGrad)" opacity="0.18"/>
+        <!-- Electron orbit rings -->
+        <ellipse cx="60" cy="60" rx="52" ry="18" fill="none" stroke="#38bdf8" stroke-width="1" stroke-dasharray="4 3" opacity="0.5" transform="rotate(0,60,60)"/>
+        <ellipse cx="60" cy="60" rx="52" ry="18" fill="none" stroke="#818cf8" stroke-width="1" stroke-dasharray="4 3" opacity="0.5" transform="rotate(60,60,60)"/>
+        <ellipse cx="60" cy="60" rx="52" ry="18" fill="none" stroke="#34d399" stroke-width="1" stroke-dasharray="4 3" opacity="0.5" transform="rotate(120,60,60)"/>
+        <!-- Moving electrons -->
+        <circle class="electron e1" r="4" fill="#7dd3fc" filter="url(#glow)"/>
+        <circle class="electron e2" r="3.5" fill="#a78bfa" filter="url(#glow)"/>
+        <circle class="electron e3" r="3" fill="#6ee7b7" filter="url(#glow)"/>
+        <!-- Nucleus protons -->
+        <circle cx="60" cy="60" r="14" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+        <circle cx="55" cy="57" r="4.5" fill="#38bdf8" opacity="0.9"/>
+        <circle cx="64" cy="57" r="4.5" fill="#818cf8" opacity="0.9"/>
+        <circle cx="59" cy="65" r="4.5" fill="#34d399" opacity="0.9"/>
+        <!-- Center dot -->
+        <circle cx="60" cy="60" r="1.5" fill="#f8fafc"/>
+      </svg>
+    </div>
+    <!-- Orbiting element atoms -->
+    <div class="atom atom-h"><span>H</span></div>
+    <div class="atom atom-o"><span>O</span></div>
+    <div class="atom atom-c"><span>C</span></div>
+    <div class="atom atom-n"><span>N</span></div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="scroll-indicator">
+    <div class="scroll-dot"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ FEATURES ═══ -->
+<section id="features" class="section section-dark">
+  <div class="section-container">
+    <div class="section-header">
+      <div class="section-badge">
+        <span class="material-symbols-outlined">auto_awesome</span>
+        Tính năng
+      </div>
+      <h2 class="section-title">Phòng thí nghiệm <span class="text-accent">tiên tiến</span></h2>
+      <p class="section-sub">Công nghệ hiện đại mang trải nghiệm hóa học hoàn toàn mới</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon-wrap" style="background:linear-gradient(135deg,#38bdf8,#0284c7)">
+          <span class="material-symbols-outlined">front_hand</span>
+        </div>
+        <h3>Theo dõi tay MediaPipe</h3>
+        <p>21 điểm landmark mỗi bàn tay, chụm ngón cái + trỏ để vẽ, nắm tay để xóa. Không cần thiết bị đặc biệt.</p>
+        <div class="feature-tag">MediaPipe · WASM · TFLite</div>
+      </div>
+
+      <div class="feature-card reveal" style="--delay:0.1s">
+        <div class="feature-icon-wrap" style="background:linear-gradient(135deg,#a78bfa,#7c3aed)">
+          <span class="material-symbols-outlined">psychology</span>
+        </div>
+        <h3>AI Tích hợp</h3>
+        <p>OpenRouter AI phân tích phản ứng và gợi ý thí nghiệm.</p>
+        <div class="feature-tag">OpenRouter · GPT</div>
+      </div>
+
+      <div class="feature-card reveal" style="--delay:0.2s">
+        <div class="feature-icon-wrap" style="background:linear-gradient(135deg,#34d399,#059669)">
+          <span class="material-symbols-outlined">visibility</span>
+        </div>
+        <h3>Eye Tracking</h3>
+        <p>Theo dõi ánh nhìn với hiệu chỉnh 9 điểm, xử lý hoàn toàn on-device.</p>
+        <div class="feature-tag">On-device · Private</div>
+      </div>
+
+      <div class="feature-card reveal" style="--delay:0.05s">
+        <div class="feature-icon-wrap" style="background:linear-gradient(135deg,#fb923c,#ea580c)">
+          <span class="material-symbols-outlined">leaderboard</span>
+        </div>
+        <h3>Bảng xếp hạng</h3>
+        <p>Tích điểm XP, mở khóa thành tích, cạnh tranh toàn cầu.</p>
+        <div class="feature-tag">Real-time · Express</div>
+      </div>
+
+      <div class="feature-card reveal" style="--delay:0.15s">
+        <div class="feature-icon-wrap" style="background:linear-gradient(135deg,#f472b6,#db2777)">
+          <span class="material-symbols-outlined">cloud_sync</span>
+        </div>
+        <h3>Lưu trữ đám mây</h3>
+        <p>Thí nghiệm được lưu tự động, chia sẻ với cộng đồng.</p>
+        <div class="feature-tag">Express · MongoDB</div>
+      </div>
+
+      <div class="feature-card reveal" style="--delay:0.25s">
+        <div class="feature-icon-wrap" style="background:linear-gradient(135deg,#fbbf24,#d97706)">
+          <span class="material-symbols-outlined">science</span>
+        </div>
+        <h3>17 Nguyên tố</h3>
+        <p>Bảng tuần hoàn đầy đủ các nguyên tố thường gặp với dữ liệu vật lý chính xác.</p>
+        <div class="feature-tag">Chem Data · VR Physics</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ HOW IT WORKS ═══ -->
+<section id="how" class="section section-darker">
+  <div class="section-container">
+    <div class="section-header">
+      <div class="section-badge">
+        <span class="material-symbols-outlined">play_circle</span>
+        Cách dùng
+      </div>
+      <h2 class="section-title">Bắt đầu trong <span class="text-accent">30 giây</span></h2>
+    </div>
+
+    <div class="steps-row">
+      <div class="step-card reveal">
+        <div class="step-number">01</div>
+        <div class="step-icon"><span class="material-symbols-outlined">login</span></div>
+        <h3>Đăng ký miễn phí</h3>
+        <p>Tạo tài khoản với email để lưu tiến trình và xếp hạng.</p>
+      </div>
+      <div class="step-arrow">
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </div>
+      <div class="step-card reveal" style="--delay:0.15s">
+        <div class="step-number">02</div>
+        <div class="step-icon"><span class="material-symbols-outlined">videocam</span></div>
+        <h3>Bật camera</h3>
+        <p>Cho phép truy cập webcam — mọi xử lý diễn ra trên thiết bị của bạn.</p>
+      </div>
+      <div class="step-arrow">
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </div>
+      <div class="step-card reveal" style="--delay:0.3s">
+        <div class="step-number">03</div>
+        <div class="step-icon"><span class="material-symbols-outlined">experiment</span></div>
+        <h3>Bắt đầu thí nghiệm</h3>
+        <p>Chụm ngón cái + trỏ để vẽ phân tử, nắm tay để xóa canvas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ ELEMENTS ═══ -->
+<section id="elements" class="section section-dark">
+  <div class="section-container">
+    <div class="section-header">
+      <div class="section-badge">
+        <span class="material-symbols-outlined">table_chart</span>
+        Bảng tuần hoàn
+      </div>
+      <h2 class="section-title">17 nguyên tố <span class="text-accent">sẵn sàng</span></h2>
+      <p class="section-sub">Phản ứng, màu sắc và trạng thái vật lý được mô phỏng chính xác</p>
+    </div>
+
+    <div class="elements-grid" id="elements-grid">
+      <!-- Populated by JS from backend -->
+      <div class="element-placeholder" data-sym="H"  data-color="#60a5fa" data-type="nonmetal">H</div>
+      <div class="element-placeholder" data-sym="He" data-color="#a78bfa" data-type="noble">He</div>
+      <div class="element-placeholder" data-sym="C"  data-color="#9ca3af" data-type="nonmetal">C</div>
+      <div class="element-placeholder" data-sym="N"  data-color="#818cf8" data-type="nonmetal">N</div>
+      <div class="element-placeholder" data-sym="O"  data-color="#f87171" data-type="nonmetal">O</div>
+      <div class="element-placeholder" data-sym="F"  data-color="#34d399" data-type="halogen">F</div>
+      <div class="element-placeholder" data-sym="Ne" data-color="#c084fc" data-type="noble">Ne</div>
+      <div class="element-placeholder" data-sym="Na" data-color="#fbbf24" data-type="metal">Na</div>
+      <div class="element-placeholder" data-sym="Mg" data-color="#6ee7b7" data-type="metal">Mg</div>
+      <div class="element-placeholder" data-sym="Al" data-color="#d1d5db" data-type="metal">Al</div>
+      <div class="element-placeholder" data-sym="Si" data-color="#94a3b8" data-type="metalloid">Si</div>
+      <div class="element-placeholder" data-sym="P"  data-color="#fb923c" data-type="nonmetal">P</div>
+      <div class="element-placeholder" data-sym="S"  data-color="#facc15" data-type="nonmetal">S</div>
+      <div class="element-placeholder" data-sym="Cl" data-color="#86efac" data-type="halogen">Cl</div>
+      <div class="element-placeholder" data-sym="K"  data-color="#f9a8d4" data-type="metal">K</div>
+      <div class="element-placeholder" data-sym="Ca" data-color="#e9d5ff" data-type="metal">Ca</div>
+      <div class="element-placeholder" data-sym="Fe" data-color="#fca5a5" data-type="transition">Fe</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ CTA ═══ -->
+<section class="section cta-section">
+  <div class="cta-glow"></div>
+  <div class="section-container" style="position:relative;z-index:2;">
+    <div class="cta-content reveal">
+      <div class="section-badge">
+        <span class="material-symbols-outlined">rocket_launch</span>
+        Bắt đầu ngay
+      </div>
+      <h2 class="section-title" style="font-size:clamp(2rem,5vw,3.5rem);">
+        Sẵn sàng khám phá<br><span class="text-accent">hóa học trong VR</span>?
+      </h2>
+      <p class="section-sub" style="max-width:520px;margin:0 auto 40px;">
+        Miễn phí, không cần cài đặt. Chỉ cần trình duyệt và webcam.
+      </p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn-primary btn-xl" onclick="document.getElementById('lp-primaryStart').click()">
+          <span class="material-symbols-outlined">experiment</span>
+          Mở Phòng Thí Nghiệm
+        </button>
+        <button class="btn-ghost btn-xl" onclick="window.openSignInModal && window.openSignInModal()">
+          <span class="material-symbols-outlined">person_add</span>
+          Tạo tài khoản
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ FOOTER ═══ -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="assets/icon.png" alt="WChem" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+      <span class="logo-text" style="color:#f8fafc;">WChem VR</span>
+    </div>
+    <div class="footer-links">
+      <a href="lab.html" class="footer-link">Phòng thí nghiệm</a>
+      <a href="#features" class="footer-link">Tính năng</a>
+      <a href="#" class="footer-link">GitHub</a>
+    </div>
+    <div class="footer-copy">© 2026 WChem VR — Powered by ChemLab API</div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════ MODALS ═══ -->
+
+<!-- Sign In / Sign Up Modal -->
+<div id="signin-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(2,6,23,0.8);backdrop-filter:blur(12px);align-items:center;justify-content:center;">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">WChem VR</div>
+        <div class="modal-sub">Đăng nhập để lưu thí nghiệm &amp; xếp hạng</div>
+      </div>
+      <button id="signin-close" class="modal-close-btn"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-tabs">
+      <button id="signin-tab-in" class="modal-tab active" onclick="switchAuthTab('signin')">Đăng nhập</button>
+      <button id="signin-tab-up" class="modal-tab" onclick="switchAuthTab('signup')">Đăng ký</button>
+    </div>
+    <div class="modal-form">
+      <input id="signin-email" type="email" placeholder="Email" autocomplete="email" class="modal-input" />
+      <input id="signin-password" type="password" placeholder="Mật khẩu" autocomplete="current-password" class="modal-input" />
+      <button id="signin-submit" class="btn-primary" style="width:100%;justify-content:center;padding:14px;">Tiếp tục</button>
+    </div>
+    <div id="signin-err" style="color:#f87171;font-size:12px;margin-top:10px;display:none;text-align:center;"></div>
+  </div>
+</div>
+
+<!-- Backend Test Modal -->
+<div id="backend-test-overlay" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(2,6,23,0.85);backdrop-filter:blur(12px);align-items:center;justify-content:center;">
+  <div class="modal-box" style="max-width:600px;width:95vw;">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="material-symbols-outlined" style="color:#38bdf8;">dns</span>
+        <div>
+          <div class="modal-title">Backend Test</div>
+          <div class="modal-sub">Express + MongoDB</div>
+        </div>
+      </div>
+      <button id="backend-test-close" class="modal-close-btn"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div id="lp-backend-status" style="font-size:12px;color:#38bdf8;margin-bottom:12px;min-height:16px;"></div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+      <button id="lp-backend-full" class="btn-primary" style="padding:8px 16px;font-size:13px;">⚡ Full Check</button>
+      <button class="lp-backend-step btn-step" data-step="health">API Health</button>
+      <button class="lp-backend-step btn-step" data-step="compounds">Compounds</button>
+      <button class="lp-backend-step btn-step" data-step="me">Auth (Me)</button>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div style="font-size:11px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:0.06em;">Log</div>
+      <button id="lp-backend-clear" style="padding:4px 10px;background:transparent;color:#475569;border:1px solid rgba(255,255,255,0.08);border-radius:6px;cursor:pointer;font-size:11px;">Xóa</button>
+    </div>
+    <div id="lp-backend-log" style="font-family:'Roboto Mono',monospace;font-size:11.5px;background:#020617;border-radius:10px;padding:14px;min-height:120px;max-height:260px;overflow-y:auto;color:#64748b;border:1px solid rgba(255,255,255,0.05);"></div>
+  </div>
+</div>
+
+<!-- User auth badge removed (T-043) -->
+
+<script>
+function switchAuthTab(mode) {
+  window._authMode = mode;
+  document.getElementById('signin-tab-in').classList.toggle('active', mode === 'signin');
+  document.getElementById('signin-tab-up').classList.toggle('active', mode === 'signup');
+}
+window._authMode = 'signin';
+</script>
+
+<!-- Scripts: load in order — dependencies first -->
+<script src="js/theme.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="js/click-spark.js"></script>
+<script src="js/card-nav.js"></script>
+
+<!-- ChemLab client (own Express + MongoDB backend) -->
+<script type="module">
+  import chemlabClient from './backend/chemlab-client.js';
+  window.chemlabClient = chemlabClient;
+</script>
+
+<script src="js/landing.js"></script>
+</body>
+</html>

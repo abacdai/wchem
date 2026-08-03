@@ -1,0 +1,11 @@
+# T3 Code + Tailscale (pc-admin)
+
+# 1. Start T3 headless (port 3773)
+npx t3@latest serve --host 0.0.0.0 --port 3773 --no-browser --auto-bootstrap-project-from-cwd /home/dominh/Desktop/Wchem
+
+# 2. Expose via Tailscale HTTPS (requires root once)
+sudo tailscale serve --https=443 http://127.0.0.1:3773
+
+# 3. Pair from any tailnet device:
+#    https://pc-admin.tail6d9e2f.ts.net/pair#token=...
+#    (token is printed in .t3code/server.log)

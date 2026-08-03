@@ -1,0 +1,93 @@
+bash: cannot set terminal process group (3993): Inappropriate ioctl for device
+bash: no job control in this shell
+(node:4007) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[08:33:38.750] WARN (#87): Claude Agent CLI health check failed.
+  { errorTag: 'PlatformError' }
+[08:33:38.783] WARN (#103): Grok CLI health check failed.
+  { errorTag: 'PlatformError' }
+[08:33:38.936] INFO (#214): Listening on http://0.0.0.0:3773
+[08:33:38.947] INFO (#213): agent activity publishing standby; waiting for T3 Connect link reconciliation
+[08:33:38.948] INFO (#213): provider.session.reaper.started
+  { inactivityThresholdMs: 1800000, sweepIntervalMs: 300000 }
+T3 Code server is ready.
+Connection string: http://192.168.1.17:3773
+Token: 3PKDRB5PD8G8
+Pairing URL: http://192.168.1.17:3773/pair#token=3PKDRB5PD8G8
+
+                                     
+  █▀▀▀▀▀█   ▀▀ █▄▄ █ ▀▄██▀█ █▀▀▀▀▀█  
+  █ ███ █ █▄▀▄▀▀▄▄▄▀▀▀▄▀ ▀▄ █ ███ █  
+  █ ▀▀▀ █ █  █ ▄ █▄▄▀ ▄▄▀ ▄ █ ▀▀▀ █  
+  ▀▀▀▀▀▀▀ █▄▀▄█ █▄▀ ▀ ▀▄▀ █ ▀▀▀▀▀▀▀  
+  ▀▄▀██▀▀▄▄ █ ▄▀█▀█▀▀▄▀  ▄▄▄██▀██ ▄  
+  ██▀▄█ ▀▀  █ █ ▄█▀ ▀▄ █  ▄▄█ █▄██▄  
+  ▀▀█▀█▄▀▄██▀▄  ▄▄▄ ▀▀▄▀▀  ▀ ▀ █▄▄█  
+  ▄██ █ ▀▀▀▀▀ ██▀ ▄▀ █▄▄▀  ▄ █ ██▀   
+  ██ ▀▀▀▀▀▀▄▀  ▀  ▄█▀█▀▄▄▄▄▄▄█▀▄▄ █  
+   ▀█▀▀█▀▄▀▄▄ ▄█▀█▀█▄▄█▄█▄▀▀  █▄██▄  
+  ▄▀ ▄█▀▀ ▄▀▀▀▄ ██▀ ▄ ▀▄▄█▄█   █ ▀█  
+  █   █▀▀   █▀▄  █▀▀▀ ▀█▄▄█▄▀▄▀ ▄▀   
+  ▀ ▀▀  ▀▀█▄ █   ▀▄▀█▄▀   █▀▀▀█▀▄ ▄  
+  █▀▀▀▀▀█ ▄ ██ ▄▄█  ▀ ▀█ ▀█ ▀ █ █▀   
+  █ ███ █ █  ▀▄▀▄█▄▄▀ ▄▀  ▀▀▀███ █▄  
+  █ ▀▀▀ █ ▀▀█▄▄ ▀ ▄▀ █▄▄▀ █▀▀█▄▀█    
+  ▀▀▀▀▀▀▀ ▀ ▀  ▀▀ ▀▀ ▀▀  ▀▀ ▀▀▀▀ ▀   
+                                     
+
+[08:34:51.243] WARN (#576): Claude Agent CLI health check failed.
+  { errorTag: 'PlatformError' }
+[08:34:51.245] WARN (#584): Grok CLI health check failed.
+  { errorTag: 'PlatformError' }
+[08:36:18.627] WARN (#728): Claude Agent CLI health check failed.
+  { errorTag: 'PlatformError' }
+[08:36:18.628] WARN (#736): Grok CLI health check failed.
+  { errorTag: 'PlatformError' }
+[08:36:42.431] WARN (#873): provider command reactor failed to generate or rename thread title
+  {
+    threadId: '0a1ac250-8090-4479-ae1b-13170d98490f',
+    cwd: '/home/dominh/Desktop/Wchem',
+    cause: 'TextGenerationError: Text generation failed in generateThreadTitle: Failed to spawn Codex CLI process\n' +
+      '    at normalizeCliError (file:///home/dominh/.npm/_npx/89628044cae88a02/node_modules/t3/dist/bin.mjs:46729:10)\n' +
+      '    at file:///home/dominh/.npm/_npx/89628044cae88a02/node_modules/t3/dist/bin.mjs:50848:87\n' +
+      '    at file:///home/dominh/.npm/_npx/89628044cae88a02/node_modules/effect/dist/internal/effect.js:1378:96\n' +
+      '    at ~effect/Utils/internal (file:///home/dominh/.npm/_npx/89628044cae88a02/node_modules/effect/dist/Utils.js:83:14)\n' +
+      '    at runCodexJson.runCodexCommand (file:///home/dominh/.npm/_npx/89628044cae88a02/node_modules/t3/dist/bin.mjs:50870:11)\n' +
+      '    at runCodexJson.runCodexCommand (definition) (file:///home/dominh/.npm/_npx/89628044cae88a02/node_modules/t3/dist/bin.mjs:50816:34)\n' +
+      '    at runCodexJson (file:///home/dominh/.npm/_npx/89628044cae88a02/node_modules/t3/dist/bin.mjs:50954:48)\n' +
+      '    at runCodexJson (definition) (file:///home/dominh/.npm/_npx/89628044cae88a02/node_modules/t3/dist/bin.mjs:50812:30)\n' +
+      '    at CodexTextGeneration.generateThreadTitle (file:///home/dominh/.npm/_npx/89628044cae88a02/node_modules/t3/dist/bin.mjs:36710:171)\n' +
+      '    at CodexTextGeneration.generateThreadTitle (definition) (file:///home/dominh/.npm/_npx/89628044cae88a02/node_modules/t3/dist/bin.mjs:50948:31)\n' +
+      '    at maybeGenerateThreadTitleForFirstTurn (file:///home/dominh/.npm/_npx/89628044cae88a02/node_modules/t3/dist/bin.mjs:85631:77)\n' +
+      '    at maybeGenerateThreadTitleForFirstTurn (definition) (file:///home/dominh/.npm/_npx/89628044cae88a02/node_modules/t3/dist/bin.mjs:85571:54)\n' +
+      '    at processTurnStartRequested (file:///home/dominh/.npm/_npx/89628044cae88a02/node_modules/t3/dist/bin.mjs:85771:12)\n' +
+      '    at processTurnStartRequested (definition) (file:///home/dominh/.npm/_npx/89628044cae88a02/node_modules/t3/dist/bin.mjs:85597:43) {\n' +
+      '  [cause]: PlatformError: NotFound: ChildProcess.spawn (codex exec --ephemeral --skip-git-repo-check -s read-only --model gpt-5.6-luna --config model_reasoning_effort="low" --output-schema /tmp/t3code-codex-schema-4007-ye1ELt/0e8afcbd0877 --output-last-message /tmp/t3code-codex-output-4007-xns2ff/9c566c9151e8 -)\n' +
+      '      at Module.systemError (file:///home/dominh/.npm/_npx/89628044cae88a02/node_modules/effect/dist/PlatformError.js:144:39)\n' +
+      '      at file:///home/dominh/.npm/_npx/89628044cae88a02/node_modules/@effect/platform-node-shared/dist/internal/utils.js:28:24\n' +
+      '      at toPlatformError (file:///home/dominh/.npm/_npx/89628044cae88a02/node_modules/@effect/platform-node-shared/dist/NodeChildProcessSpawner.js:26:54)\n' +
+      '      at ChildProcess.<anonymous> (file:///home/dominh/.npm/_npx/89628044cae88a02/node_modules/@effect/platform-node-shared/dist/NodeChildProcessSpawner.js:244:26)\n' +
+      '      at ChildProcess.emit (node:events:519:28)\n' +
+      '      at ChildProcess._handle.onexit (node:internal/child_process:291:12)\n' +
+      '      at onErrorNT (node:internal/child_process:483:16)\n' +
+      '      at process.processTicksAndRejections (node:internal/process/task_queues:89:21) {\n' +
+      '    [cause]: Error: spawn codex ENOENT\n' +
+      '        at ChildProcess._handle.onexit (node:internal/child_process:285:19)\n' +
+      '        at onErrorNT (node:internal/child_process:483:16)\n' +
+      '        at process.processTicksAndRejections (node:internal/process/task_queues:89:21)\n' +
+      '  }\n' +
+      '}'
+  }
+[08:38:38.750] WARN (#86): Claude Agent CLI health check failed.
+  { errorTag: 'PlatformError' }
+[08:38:38.788] WARN (#102): Grok CLI health check failed.
+  { errorTag: 'PlatformError' }
+[09:13:40.155] INFO (#265): provider.session.reaped
+  {
+    threadId: '0a1ac250-8090-4479-ae1b-13170d98490f',
+    provider: 'opencode',
+    idleDurationMs: 2061321,
+    reason: 'inactivity_threshold'
+  }
+[09:13:40.162] INFO (#265): provider.session.reaper.sweep-complete
+  { reapedCount: 1, totalBindings: 1 }

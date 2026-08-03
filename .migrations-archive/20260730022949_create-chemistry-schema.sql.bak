@@ -1,0 +1,162 @@
+-- VR Chemistry Sandbox Database Schema
+-- Created: 2026-07-30
+
+-- =====================================================
+-- User Profiles Table
+-- =====================================================
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  username TEXT UNIQUE,
+  display_name TEXT,
+  avatar_url TEXT,
+  total_experiments INT DEFAULT 0,
+  total_score INT DEFAULT 0,
+  level INT DEFAULT 1,
+  xp INT DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- =====================================================
+-- Chemical Compounds Library
+-- =====================================================
+CREATE TABLE IF NOT EXISTS public.compounds (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  symbol TEXT UNIQUE NOT NULL,
+  name TEXT NOT NULL,
+  atomic_number INT,
+  atomic_mass DECIMAL(10, 4),
+  element_type TEXT,
+  state TEXT DEFAULT 'solid',
+  color TEXT DEFAULT '#CCCCCC',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- =====================================================
+-- Experiments Table
+-- =====================================================
+CREATE TABLE IF NOT EXISTS public.experiments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT,
+  compounds_used TEXT[] DEFAULT '{}',
+  reaction_data JSONB DEFAULT '{}',
+  is_public BOOLEAN DEFAULT false,
+  likes_count INT DEFAULT 0,
+  views_count INT DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_experiments_user_id ON public.experiments(user_id);
+CREATE INDEX idx_experiments_is_public ON public.experiments(is_public);
+CREATE INDEX idx_experiments_created_at ON public.experiments(created_at DESC);
+
+-- =====================================================
+-- Experiment Likes
+-- =====================================================
+CREATE TABLE IF NOT EXISTS public.experiment_likes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  experiment_id UUID NOT NULL REFERENCES public.experiments(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(experiment_id, user_id)
+);
+
+CREATE INDEX idx_experiment_likes_user_id ON public.experiment_likes(user_id);
+CREATE INDEX idx_experiment_likes_experiment_id ON public.experiment_likes(experiment_id);
+
+-- =====================================================
+-- Achievements System
+-- =====================================================
+CREATE TABLE IF NOT EXISTS public.achievements (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT UNIQUE NOT NULL,
+  description TEXT,
+  requirement_type TEXT NOT NULL,
+  requirement_value INT NOT NULL,
+  xp_reward INT DEFAULT 0,
+  icon TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.user_achievements (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  achievement_id UUID NOT NULL REFERENCES public.achievements(id) ON DELETE CASCADE,
+  unlocked_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, achievement_id)
+);
+
+CREATE INDEX idx_user_achievements_user_id ON public.user_achievements(user_id);
+
+-- =====================================================
+-- Leaderboard
+-- =====================================================
+CREATE TABLE IF NOT EXISTS public.leaderboard (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  score INT DEFAULT 0,
+  rank INT,
+  period TEXT DEFAULT 'all_time',
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, period)
+);
+
+CREATE INDEX idx_leaderboard_period_rank ON public.leaderboard(period, rank);
+CREATE INDEX idx_leaderboard_user_id ON public.leaderboard(user_id);
+
+-- =====================================================
+-- User Sessions (VR session tracking)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS public.user_sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  session_start TIMESTAMPTZ DEFAULT NOW(),
+  session_end TIMESTAMPTZ,
+  duration_seconds INT,
+  experiments_created INT DEFAULT 0,
+  compounds_used TEXT[] DEFAULT '{}',
+  xp_earned INT DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_user_sessions_user_id ON public.user_sessions(user_id);
+CREATE INDEX idx_user_sessions_start ON public.user_sessions(session_start DESC);
+
+-- =====================================================
+-- Seed Chemical Compounds (17 elements)
+-- =====================================================
+INSERT INTO public.compounds (symbol, name, atomic_number, atomic_mass, element_type, state, color) VALUES
+  ('H',  'Hydrogen',   1,   1.008,  'nonmetal',     'gas',    '#FFFFFF'),
+  ('He', 'Helium',     2,   4.003,  'noble_gas',    'gas',    '#D9FFFF'),
+  ('C',  'Carbon',     6,  12.011,  'nonmetal',     'solid',  '#909090'),
+  ('N',  'Nitrogen',   7,  14.007,  'nonmetal',     'gas',    '#3050F8'),
+  ('O',  'Oxygen',     8,  15.999,  'nonmetal',     'gas',    '#FF0D0D'),
+  ('Na', 'Sodium',    11,  22.990,  'alkali_metal', 'solid',  '#AB5CF2'),
+  ('Mg', 'Magnesium', 12,  24.305,  'alkaline',     'solid',  '#8AFF00'),
+  ('Al', 'Aluminum',  13,  26.982,  'metal',        'solid',  '#BFA6A6'),
+  ('Si', 'Silicon',   14,  28.085,  'metalloid',    'solid',  '#F0C8A0'),
+  ('P',  'Phosphorus',15,  30.974,  'nonmetal',     'solid',  '#FF8000'),
+  ('S',  'Sulfur',    16,  32.06,   'nonmetal',     'solid',  '#FFFF30'),
+  ('Cl', 'Chlorine',  17,  35.45,   'halogen',      'gas',    '#1FF01F'),
+  ('Fe', 'Iron',      26,  55.845,  'metal',        'solid',  '#E06633'),
+  ('Cu', 'Copper',    29,  63.546,  'metal',        'solid',  '#C88033'),
+  ('Zn', 'Zinc',      30,  65.38,   'metal',        'solid',  '#7D80B0'),
+  ('Ag', 'Silver',    47, 107.868,  'metal',        'solid',  '#C0C0C0'),
+  ('Au', 'Gold',      79, 196.967,  'metal',        'solid',  '#FFD123')
+ON CONFLICT (symbol) DO NOTHING;
+
+-- =====================================================
+-- Seed Achievements (7 achievements)
+-- =====================================================
+INSERT INTO public.achievements (name, description, requirement_type, requirement_value, xp_reward, icon) VALUES
+  ('First Steps',      'Create your first experiment',         'experiments_created', 1,   10,  '🧪'),
+  ('Experiment Master','Create 10 experiments',                 'experiments_created', 10,  50,  '⚗️'),
+  ('Chemist',          'Create 50 experiments',                 'experiments_created', 50,  200, '🔬'),
+  ('Element Explorer', 'Use 5 different compounds',             'compounds_used',      5,   25,  '⚛️'),
+  ('Periodic Master',  'Use 10 different compounds',            'compounds_used',      10,  75,  '📊'),
+  ('Social Butterfly', 'Receive 10 likes on your experiments',  'likes_received',      10,  50,  '❤️'),
+  ('Lab Influencer',   'Receive 100 likes on your experiments', 'likes_received',      100, 300, '⭐')
+ON CONFLICT (name) DO NOTHING;

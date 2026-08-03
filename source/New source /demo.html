@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pupil Detector — cổng JS (OpenCV.js)</title>
+<style>
+  body { margin:0; background:#0a0d0e; color:#e7eeec; font-family: ui-monospace, monospace; display:flex; flex-direction:column; align-items:center; gap:12px; padding:20px; }
+  h1 { font-size:15px; font-weight:600; color:#5eead4; margin:0; }
+  p.sub { font-size:12px; color:#8fa09c; margin:0 0 8px; text-align:center; max-width:640px; }
+  #wrap { position:relative; width:640px; max-width:96vw; }
+  canvas#output { width:100%; display:block; background:#111; border:1px solid #2a3638; border-radius:6px; }
+  #hud { display:flex; gap:16px; font-size:12px; color:#b1c7f5; }
+  #hud b { color:#ffb454; }
+  #boot { font-size:12px; color:#8fa09c; }
+</style>
+</head>
+<body>
+  <h1>PUPIL DETECTOR — cổng JS trung thực của OrloskyPupilDetector.py</h1>
+  <p class="sub">Chạy hoàn toàn trong trình duyệt bằng OpenCV.js (cùng thư viện lõi C++ với bản Python gốc). Vòng tròn xanh = ellipse pupil phát hiện được, chấm cam = tâm.</p>
+  <div id="boot">Đang tải OpenCV.js…</div>
+  <div id="wrap">
+    <video id="video" autoplay playsinline muted style="display:none;"></video>
+    <canvas id="output" width="640" height="480"></canvas>
+  </div>
+  <div id="hud">
+    <span id="fps">FPS --</span>
+    <span id="status">—</span>
+  </div>
+
+<script src="pupil-detector.js"></script>
+<script>
+  const bootEl = document.getElementById('boot');
+  function onOpenCvReady() {
+    cv['onRuntimeInitialized'] = () => {
+      bootEl.textContent = 'OpenCV.js sẵn sàng — đang xin quyền camera…';
+      main().catch((err) => {
+        bootEl.textContent = 'Lỗi: ' + err.message;
+        console.error(err);
+      });
+    };
+  }
+</script>
+<script async src="https://docs.opencv.org/4.x/opencv.js" onload="onOpenCvReady();" onerror="document.getElementById('boot').textContent='Không tải được opencv.js — kiểm tra lại đường dẫn CDN.';"></script>
+<script>
+  async function main() {
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('output');
+    const ctx = canvas.getContext('2d');
+    const fpsEl = document.getElementById('fps');
+    const statusEl = document.getElementById('status');
+
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
+    video.srcObject = stream;
+    await video.play();
+    bootEl.textContent = '';
+
+    const captureCanvas = document.createElement('canvas');
+    const captureCtx = captureCanvas.getContext('2d');
+
+    let fpsSmooth = 0;
+    let prevT = performance.now();
+
+    function loop() {
+      if (video.videoWidth > 0) {
+        captureCanvas.width = video.videoWidth;
+        captureCanvas.height = video.videoHeight;
+        captureCtx.drawImage(video, 0, 0);
+
+        const srcMat = cv.imread(captureCanvas);
+        const cropped = PupilDetector.cropToAspectRatio(cv, srcMat, 640, 480);
+        srcMat.delete();
+
+        const result = PupilDetector.detectPupil(cv, cropped, { width: 640, height: 480 });
+
+        cv.imshow(canvas, cropped);
+        cropped.delete();
+
+        if (result) {
+          ctx.strokeStyle = '#5eead4';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.ellipse(
+            result.center.x, result.center.y,
+            Math.max(result.size.width / 2, 1), Math.max(result.size.height / 2, 1),
+            (result.angle * Math.PI) / 180, 0, 2 * Math.PI,
+          );
+          ctx.stroke();
+          ctx.fillStyle = '#ffb454';
+          ctx.beginPath();
+          ctx.arc(result.center.x, result.center.y, 3, 0, 2 * Math.PI);
+          ctx.fill();
+          statusEl.innerHTML = `Pupil: <b>OK</b> (${Math.round(result.center.x)}, ${Math.round(result.center.y)})`;
+        } else {
+          statusEl.textContent = 'Không tìm thấy pupil trong khung hình này';
+        }
+      }
+
+      const now = performance.now();
+      const inst = 1000 / Math.max(now - prevT, 1);
+      prevT = now;
+      fpsSmooth = fpsSmooth ? fpsSmooth * 0.9 + inst * 0.1 : inst;
+      fpsEl.textContent = `FPS ${Math.round(fpsSmooth)}`;
+
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  }
+</script>
+</body>
+</html>

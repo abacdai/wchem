@@ -1,0 +1,29 @@
+# Environment variables (contains secret keys)
+.env
+.env.local
+.env.*.local
+
+# InsForge & AI agent skills
+.insforge
+.agent
+.agents
+.augment
+.claude
+.cline
+.github/copilot*
+.kilocode
+.qoder
+.qwen
+.roo
+.trae
+.windsurf
+
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Python venv
+backend/.venv/

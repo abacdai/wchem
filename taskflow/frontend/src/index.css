@@ -1,0 +1,97 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #15803d;
+  --color-primary-hover: #166534;
+  --color-primary-light: #22c55e;
+  --color-secondary: #3f56bc;
+  --color-secondary-hover: #233ca3;
+  --color-secondary-light: #7f95ff;
+  --color-accent: #d97706;
+  --color-accent-hover: #b45309;
+  --color-background: #f0fdf4;
+  --color-foreground: #14532d;
+  --color-muted: #e8f5ee;
+  --color-muted-foreground: #4d6a5a;
+  --color-border: #bbf7d0;
+  --color-destructive: #dc2626;
+  --color-ring: #15803d;
+  --color-card: #ffffff;
+  --color-card-dark: #0d1a14;
+  --color-background-dark: #081310;
+  --color-foreground-dark: #e7f7ee;
+  --color-muted-dark: #13261c;
+  --color-muted-foreground-dark: #8fb09e;
+  --color-border-dark: #1e3d2c;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-heading: 'Exo', ui-sans-serif, system-ui, sans-serif;
+  --font-ui: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Roboto Mono', ui-monospace, 'SF Mono', monospace;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  @apply bg-background text-foreground antialiased dark:bg-background-dark dark:text-foreground-dark;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-ui);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.list-stagger > * {
+  animation: taskflow-in 320ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 20px 40px rgba(127, 149, 255, 0.15);
+}
+
+.dark .glass-panel {
+  background: rgba(13, 26, 20, 0.55);
+  border: 1px solid rgba(30, 61, 44, 0.6);
+}
+
+@keyframes taskflow-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

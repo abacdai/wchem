@@ -1,0 +1,44 @@
+{
+  "project": "Wchem",
+  "framework": "Loop Engineering",
+  "runtime": "OpenCode",
+  "last_audited": "2026-07-31T17:45:00+07:00",
+  "audit_type": "full-config",
+  "loop_files": [
+    { "path": "AGENTS.md", "role": "constitution", "status": "ok" },
+    { "path": "LOOP.md", "role": "workflow", "status": "ok" },
+    { "path": "STATE.md", "role": "state", "status": "ok" },
+    { "path": "loop-budget.md", "role": "budget", "status": "ok" },
+    { "path": "loop-constraints.md", "role": "constraints", "status": "ok" },
+    { "path": "loop-run-log.md", "role": "run-log", "status": "ok" },
+    { "path": "skills/loop-budget/SKILL.md", "role": "skill", "status": "ok" },
+    { "path": "skills/loop-constraints/SKILL.md", "role": "skill", "status": "ok" },
+    { "path": "skills/loop-triage/SKILL.md", "role": "skill", "status": "ok" },
+    { "path": "project-context.md", "role": "context", "status": "ok" },
+    { "path": "decision-log.md", "role": "decisions", "status": "ok" },
+    { "path": "loop-ledger.json", "role": "ledger", "status": "ok" }
+  ],
+  "latest_run": {
+    "run_id": "2026-07-31T17:30:00+07:00",
+    "iteration": 12,
+    "phase": "FIX",
+    "task": "Improve Hand Tracking FPS",
+    "outcome": "partial-success"
+  },
+  "current_task": {
+    "id": "T-013",
+    "title": "Fix gesture smoothing and menu click detection",
+    "phase": "FIX",
+    "next_iteration": 13
+  },
+  "consistency": {
+    "status": "ready",
+    "issues_resolved": [
+      "Sandboxels references removed from loop configuration",
+      "STATE.md synced with loop-run-log.md",
+      "token policy tiers harmonized across budget, constraints, and skills",
+      "outdated paths fixed in opencode.json and loop-run-log.md"
+    ],
+    "open_issues": []
+  }
+}

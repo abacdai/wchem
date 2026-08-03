@@ -1,0 +1,12 @@
+.agents/
+.claude/
+.migrations-archive/
+.mypy_cache/
+__pycache__/
+node_modules/
+.git/
+.gitignore
+*.log
+*.pyc
+.env*
+*.bak

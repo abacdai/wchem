@@ -1,0 +1,153 @@
+-- Row Level Security (RLS) Policies
+-- Secures all tables with user-based access control
+
+-- =====================================================
+-- Enable RLS on all tables
+-- =====================================================
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.compounds ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.experiments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.experiment_likes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.achievements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_achievements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.leaderboard ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_sessions ENABLE ROW LEVEL SECURITY;
+
+-- =====================================================
+-- Profiles Policies
+-- =====================================================
+-- Anyone can view profiles
+CREATE POLICY "Profiles are viewable by everyone" 
+  ON public.profiles FOR SELECT 
+  USING (true);
+
+-- Users can insert their own profile
+CREATE POLICY "Users can insert own profile" 
+  ON public.profiles FOR INSERT 
+  WITH CHECK (auth.uid() = id);
+
+-- Users can update their own profile
+CREATE POLICY "Users can update own profile" 
+  ON public.profiles FOR UPDATE 
+  USING (auth.uid() = id);
+
+-- =====================================================
+-- Compounds Policies (Public Read-Only)
+-- =====================================================
+-- Anyone can view compounds
+CREATE POLICY "Compounds are viewable by everyone" 
+  ON public.compounds FOR SELECT 
+  USING (true);
+
+-- =====================================================
+-- Experiments Policies
+-- =====================================================
+-- Public experiments viewable by everyone
+CREATE POLICY "Public experiments are viewable by everyone" 
+  ON public.experiments FOR SELECT 
+  USING (is_public = true OR auth.uid() = user_id);
+
+-- Users can insert their own experiments
+CREATE POLICY "Users can insert own experiments" 
+  ON public.experiments FOR INSERT 
+  WITH CHECK (auth.uid() = user_id);
+
+-- Users can update their own experiments
+CREATE POLICY "Users can update own experiments" 
+  ON public.experiments FOR UPDATE 
+  USING (auth.uid() = user_id);
+
+-- Users can delete their own experiments
+CREATE POLICY "Users can delete own experiments" 
+  ON public.experiments FOR DELETE 
+  USING (auth.uid() = user_id);
+
+-- =====================================================
+-- Experiment Likes Policies
+-- =====================================================
+-- Users can view all likes
+CREATE POLICY "Likes are viewable by everyone" 
+  ON public.experiment_likes FOR SELECT 
+  USING (true);
+
+-- Users can insert their own likes
+CREATE POLICY "Users can insert own likes" 
+  ON public.experiment_likes FOR INSERT 
+  WITH CHECK (auth.uid() = user_id);
+
+-- Users can delete their own likes
+CREATE POLICY "Users can delete own likes" 
+  ON public.experiment_likes FOR DELETE 
+  USING (auth.uid() = user_id);
+
+-- =====================================================
+-- Achievements Policies (Public Read-Only)
+-- =====================================================
+-- Anyone can view achievements
+CREATE POLICY "Achievements are viewable by everyone" 
+  ON public.achievements FOR SELECT 
+  USING (true);
+
+-- =====================================================
+-- User Achievements Policies
+-- =====================================================
+-- Users can view all unlocked achievements
+CREATE POLICY "User achievements are viewable by everyone" 
+  ON public.user_achievements FOR SELECT 
+  USING (true);
+
+-- Users can insert their own achievements (unlocks)
+CREATE POLICY "Users can insert own achievements" 
+  ON public.user_achievements FOR INSERT 
+  WITH CHECK (auth.uid() = user_id);
+
+-- =====================================================
+-- Leaderboard Policies (Public Read-Only)
+-- =====================================================
+-- Anyone can view leaderboard
+CREATE POLICY "Leaderboard is viewable by everyone" 
+  ON public.leaderboard FOR SELECT 
+  USING (true);
+
+-- Users can insert/update their own leaderboard entry
+CREATE POLICY "Users can upsert own leaderboard" 
+  ON public.leaderboard FOR INSERT 
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own leaderboard" 
+  ON public.leaderboard FOR UPDATE 
+  USING (auth.uid() = user_id);
+
+-- =====================================================
+-- User Sessions Policies
+-- =====================================================
+-- Users can only view their own sessions
+CREATE POLICY "Users can view own sessions" 
+  ON public.user_sessions FOR SELECT 
+  USING (auth.uid() = user_id);
+
+-- Users can insert their own sessions
+CREATE POLICY "Users can insert own sessions" 
+  ON public.user_sessions FOR INSERT 
+  WITH CHECK (auth.uid() = user_id);
+
+-- Users can update their own sessions
+CREATE POLICY "Users can update own sessions" 
+  ON public.user_sessions FOR UPDATE 
+  USING (auth.uid() = user_id);
+
+-- =====================================================
+-- Grant permissions to authenticated users
+-- =====================================================
+GRANT USAGE ON SCHEMA public TO authenticated;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO authenticated;
+
+-- Grant read-only to anonymous users (for public data)
+GRANT USAGE ON SCHEMA public TO anon;
+GRANT SELECT ON public.profiles TO anon;
+GRANT SELECT ON public.compounds TO anon;
+GRANT SELECT ON public.experiments TO anon;
+GRANT SELECT ON public.achievements TO anon;
+GRANT SELECT ON public.user_achievements TO anon;
+GRANT SELECT ON public.leaderboard TO anon;

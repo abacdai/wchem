@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<script>(function(){try{var t=localStorage.getItem('wchem-theme');if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
+<meta name="description" content="Trang cá nhân WChem VR — quản lý tài khoản.">
+<meta name="theme-color" content="#020617">
+<link rel="icon" type="image/png" href="assets/icon.png?v=4">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/design-tokens.css">
+<link rel="stylesheet" href="css/card-nav.css">
+<link rel="stylesheet" href="css/landing.css">
+<title>Trang cá nhân — WChem VR</title>
+</head>
+<body>
+
+<div id="card-nav-root" class="card-nav-container"></div>
+
+<section class="section section-darker">
+  <div class="section-container" style="max-width:560px;">
+    <div class="profile-card" style="background:var(--lp-glass, rgba(15,23,42,0.6));backdrop-filter:blur(14px);border:1px solid var(--lp-border, rgba(255,255,255,0.1));border-radius:24px;padding:36px 28px;box-shadow:var(--lp-shadow, 0 8px 30px rgba(0,0,0,0.35));">
+
+      <div style="text-align:center;">
+        <div id="profile-avatar" class="profile-avatar" style="width:88px;height:88px;border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#38bdf8,#0284c7);color:#fff;font-size:38px;font-weight:700;font-family:'Space Grotesk',sans-serif;border:3px solid rgba(255,255,255,0.35);overflow:hidden;">?</div>
+        <h2 id="profile-name" class="section-title" style="font-size:1.6rem;margin:0;">—</h2>
+        <p id="profile-email" style="color:var(--lp-text-soft, #94a3b8);font-size:14px;margin:6px 0 2px;">—</p>
+        <p id="profile-since" style="color:var(--lp-text-muted, #64748b);font-size:12px;margin:0 0 22px;"></p>
+      </div>
+
+      <!-- Account stat row -->
+      <div style="display:flex;justify-content:center;gap:12px;margin-bottom:26px;">
+        <div style="flex:1;max-width:170px;background:var(--lp-accent-soft, rgba(56,189,248,0.1));border:1px solid var(--lp-border, rgba(255,255,255,0.08));border-radius:16px;padding:14px 10px;text-align:center;">
+          <div style="font-size:26px;font-weight:700;color:var(--lp-accent, #38bdf8);font-family:'Roboto Mono',monospace;line-height:1;" id="profile-count">…</div>
+          <div style="font-size:11px;color:var(--lp-text-muted, #64748b);margin-top:6px;">Hợp chất đã lưu</div>
+        </div>
+      </div>
+
+      <!-- Edit profile -->
+      <div class="profile-edit" style="border-top:1px solid var(--lp-border, rgba(255,255,255,0.08));padding-top:20px;margin-bottom:22px;">
+        <h3 style="font-size:15px;margin:0 0 14px;display:flex;align-items:center;gap:8px;">
+          <span class="material-symbols-outlined" style="font-size:18px;color:var(--lp-accent, #38bdf8);">edit</span>
+          Chỉnh sửa thông tin
+        </h3>
+
+        <label style="display:block;font-size:12px;color:var(--lp-text-muted, #64748b);margin-bottom:6px;">Ảnh đại diện</label>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+          <img id="pf-avatar-preview" src="" alt="Preview" style="width:52px;height:52px;border-radius:50%;object-fit:cover;display:none;border:2px solid var(--lp-border-strong, rgba(255,255,255,0.2));">
+          <span id="pf-avatar-letter" style="width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#38bdf8,#0284c7);color:#fff;font-weight:700;font-family:'Space Grotesk',sans-serif;font-size:22px;">?</span>
+          <input type="file" id="pf-avatar-file" accept="image/*" style="font-size:12px;color:var(--lp-text-soft, #94a3b8);">
+        </div>
+
+        <label for="pf-name" style="display:block;font-size:12px;color:var(--lp-text-muted, #64748b);margin-bottom:6px;">Tên hiển thị</label>
+        <input id="pf-name" type="text" style="width:100%;box-sizing:border-box;background:var(--lp-bg-soft, rgba(255,255,255,0.06));border:1px solid var(--lp-border, rgba(255,255,255,0.12));border-radius:10px;padding:10px 12px;font-size:14px;color:var(--lp-text, #e2e8f0);margin-bottom:14px;outline:none;">
+        <label for="pf-email" style="display:block;font-size:12px;color:var(--lp-text-muted, #64748b);margin-bottom:6px;">Email</label>
+        <input id="pf-email" type="email" style="width:100%;box-sizing:border-box;background:var(--lp-bg-soft, rgba(255,255,255,0.06));border:1px solid var(--lp-border, rgba(255,255,255,0.12));border-radius:10px;padding:10px 12px;font-size:14px;color:var(--lp-text, #e2e8f0);margin-bottom:14px;outline:none;">
+
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <button id="pf-save" class="btn-primary" style="padding:10px 22px;font-size:13px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">save</span>
+            Lưu thay đổi
+          </button>
+          <span id="pf-save-msg" style="font-size:12px;color:#22c55e;"></span>
+        </div>
+      </div>
+
+      <!-- Change password -->
+      <div class="profile-pass" style="border-top:1px solid var(--lp-border, rgba(255,255,255,0.08));padding-top:20px;margin-bottom:22px;">
+        <h3 style="font-size:15px;margin:0 0 14px;display:flex;align-items:center;gap:8px;">
+          <span class="material-symbols-outlined" style="font-size:18px;color:var(--lp-accent, #38bdf8);">lock</span>
+          Đổi mật khẩu
+        </h3>
+        <label for="pf-cur" style="display:block;font-size:12px;color:var(--lp-text-muted, #64748b);margin-bottom:6px;">Mật khẩu hiện tại</label>
+        <input id="pf-cur" type="password" style="width:100%;box-sizing:border-box;background:var(--lp-bg-soft, rgba(255,255,255,0.06));border:1px solid var(--lp-border, rgba(255,255,255,0.12));border-radius:10px;padding:10px 12px;font-size:14px;color:var(--lp-text, #e2e8f0);margin-bottom:14px;outline:none;">
+        <label for="pf-new" style="display:block;font-size:12px;color:var(--lp-text-muted, #64748b);margin-bottom:6px;">Mật khẩu mới (tối thiểu 8 ký tự)</label>
+        <input id="pf-new" type="password" style="width:100%;box-sizing:border-box;background:var(--lp-bg-soft, rgba(255,255,255,0.06));border:1px solid var(--lp-border, rgba(255,255,255,0.12));border-radius:10px;padding:10px 12px;font-size:14px;color:var(--lp-text, #e2e8f0);margin-bottom:14px;outline:none;">
+        <label for="pf-confirm" style="display:block;font-size:12px;color:var(--lp-text-muted, #64748b);margin-bottom:6px;">Xác nhận mật khẩu mới</label>
+        <input id="pf-confirm" type="password" style="width:100%;box-sizing:border-box;background:var(--lp-bg-soft, rgba(255,255,255,0.06));border:1px solid var(--lp-border, rgba(255,255,255,0.12));border-radius:10px;padding:10px 12px;font-size:14px;color:var(--lp-text, #e2e8f0);margin-bottom:14px;outline:none;">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <button id="pf-pass" class="btn-ghost" style="padding:10px 22px;font-size:13px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">key</span>
+            Đổi mật khẩu
+          </button>
+          <span id="pf-pass-msg" style="font-size:12px;color:#22c55e;"></span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;border-top:1px solid var(--lp-border, rgba(255,255,255,0.08));padding-top:22px;">
+        <button id="profile-lab" class="btn-primary">
+          <span class="material-symbols-outlined">experiment</span>
+          Mở Phòng Thí Nghiệm
+        </button>
+        <button id="profile-logout" class="btn-ghost">
+          <span class="material-symbols-outlined">logout</span>
+          Đăng xuất
+        </button>
+      </div>
+
+      <p id="profile-err" style="color:#f87171;font-size:13px;margin-top:14px;display:none;text-align:center;"></p>
+    </div>
+  </div>
+</section>
+
+<script src="js/theme.js"></script>
+<script>
+  if (!localStorage.getItem('chemlab:token')) { location.href = 'index.html'; }
+</script>
+<script src="js/card-nav.js"></script>
+<script type="module">
+  import chemlabClient from './backend/chemlab-client.js';
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    try { return 'Tham gia: ' + new Date(iso).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long' }); } catch (e) { return ''; }
+  }
+
+  function fillProfile(user) {
+    var u = user || {};
+    var email = u.email || '';
+    var avatarEl = document.getElementById('profile-avatar');
+    if (u.avatar) {
+      avatarEl.innerHTML = '<img src="' + u.avatar + '" alt="Avatar" style="width:100%;height:100%;object-fit:cover;">';
+    } else {
+      avatarEl.innerHTML = '';
+      avatarEl.textContent = email ? email.charAt(0).toUpperCase() : '?';
+    }
+    document.getElementById('profile-name').textContent = u.name || (email ? email.split('@')[0] : '—');
+    document.getElementById('profile-email').textContent = email || '—';
+    document.getElementById('profile-since').textContent = fmtDate(u.createdAt);
+    document.getElementById('pf-name').value = u.name || '';
+    document.getElementById('pf-email').value = email || '';
+  }
+
+  function renderNavAvatar() {
+    var user = chemlabClient.user || {};
+    if (!authBtn) return;
+    authBtn.classList.add('nav-avatar-btn');
+    authBtn.innerHTML = user.avatar
+      ? '<img class="nav-avatar-img" src="' + user.avatar + '" alt="Avatar">'
+      : '<span class="nav-avatar" role="img" aria-label="Trang cá nhân">' + (user.email || '?').charAt(0).toUpperCase() + '</span>';
+    authBtn.onclick = function () { location.href = 'profile.html'; };
+  }
+
+  function setMsg(id, text, ok) {
+    var el = document.getElementById(id);
+    el.textContent = text;
+    el.style.color = ok ? '#22c55e' : '#f87171';
+  }
+
+  function showErr(msg) {
+    var el = document.getElementById('profile-err');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  window.CardNav(document.getElementById('card-nav-root'), {
+    logo: 'assets/icon.png',
+    logoAlt: 'WChem',
+    logoText: 'WChem VR',
+    menuColor: '#ffffff',
+    baseColor: 'rgba(15,23,42,0.8)',
+    buttonBgColor: '#38bdf8',
+    buttonTextColor: '#020617',
+    ctaText: 'Sign in',
+    items: [
+      {
+        label: 'Trang chủ',
+        bgColor: '#1e293b',
+        textColor: '#fff',
+        links: [
+          { label: 'Về trang chủ', ariaLabel: 'Về trang chủ', href: 'index.html' },
+          { label: 'Mở Lab', ariaLabel: 'Mở Phòng Thí Nghiệm', href: 'lab.html' },
+        ]
+      },
+      {
+        label: 'Tài khoản',
+        bgColor: '#334155',
+        textColor: '#fff',
+        links: [
+          { label: 'Trang cá nhân', ariaLabel: 'Trang cá nhân', href: 'profile.html' },
+          { label: 'Đăng xuất', ariaLabel: 'Đăng xuất', href: '#' },
+        ]
+      }
+    ],
+    onCtaClick: function () {
+      if (!chemlabClient.isAuthenticated()) {
+        location.href = 'index.html';
+      } else {
+        location.href = 'profile.html';
+      }
+    }
+  });
+
+  var navRoot = document.getElementById('card-nav-root');
+  var authBtn = navRoot && navRoot.querySelector('.card-nav-cta-button:last-child');
+
+  /* ─── Render: from cached session instantly, or fetch once when cache is empty ─── */
+  if (chemlabClient.user) {
+    fillProfile(chemlabClient.user);
+  } else {
+    (async function () {
+      try {
+        var fresh = await chemlabClient.me();
+        if (fresh && fresh.user) {
+          chemlabClient.user = fresh.user;
+          chemlabClient._persist();
+          fillProfile(fresh.user);
+        }
+      } catch (e) { /* offline — keep placeholders */ }
+    })();
+  }
+  renderNavAvatar();
+
+  /* Active nav state */
+  var profileLink = navRoot.querySelector('.card-nav-content a[aria-label="Trang cá nhân"]');
+  if (profileLink) profileLink.classList.add('active');
+
+  var logoutLink = navRoot.querySelector('.card-nav-content a[aria-label="Đăng xuất"]');
+  if (logoutLink) {
+    logoutLink.addEventListener('click', function (e) {
+      e.preventDefault();
+      chemlabClient.signOut().then(function () { location.href = 'index.html'; });
+    });
+  }
+
+  /* ─── Live data in the background: fresh profile + compound count ─── */
+  (async function () {
+    try {
+      var res = await chemlabClient.me();
+      if (res && res.user) {
+        chemlabClient.user = res.user;
+        chemlabClient._persist();
+        fillProfile(res.user);
+        renderNavAvatar();
+      }
+    } catch (e) { /* cached data already shown */ }
+
+    try {
+      var compounds = await chemlabClient.getCompounds();
+      document.getElementById('profile-count').textContent = String(Array.isArray(compounds) ? compounds.length : 0);
+    } catch (err) {
+      document.getElementById('profile-count').textContent = '—';
+    }
+  })();
+
+  /* ─── Avatar file picker ─── */
+  var pendingAvatar = null;
+  var avatarFileEl = document.getElementById('pf-avatar-file');
+  avatarFileEl.addEventListener('change', function () {
+    var file = avatarFileEl.files && avatarFileEl.files[0];
+    if (!file) return;
+    if (file.size > 400 * 1024) {
+      setMsg('pf-save-msg', 'Ảnh quá lớn (tối đa 400KB)', false);
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function () {
+      pendingAvatar = reader.result;
+      document.getElementById('pf-avatar-preview').src = pendingAvatar;
+      document.getElementById('pf-avatar-preview').style.display = 'block';
+      document.getElementById('pf-avatar-letter').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  /* ─── Save profile (name / email / avatar) ─── */
+  document.getElementById('pf-save').addEventListener('click', async function () {
+    var name = document.getElementById('pf-name').value.trim();
+    var email = document.getElementById('pf-email').value.trim();
+    var payload = { name: name, email: email };
+    if (pendingAvatar) payload.avatar = pendingAvatar;
+
+    try {
+      var res = await fetch('/api/auth/me', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + (chemlabClient.token || ''),
+        },
+        body: JSON.stringify(payload),
+      });
+      var body = await res.json().catch(function () { return {}; });
+      if (!res.ok) {
+        var details = body.details ? Object.values(body.details).join(' · ') : '';
+        throw new Error(body.error || details || 'Lưu thất bại');
+      }
+      chemlabClient.user = body.user;
+      chemlabClient._persist();
+      pendingAvatar = null;
+      fillProfile(body.user);
+      renderNavAvatar();
+      setMsg('pf-save-msg', 'Đã lưu ✓', true);
+    } catch (err) {
+      setMsg('pf-save-msg', err.message, false);
+    }
+  });
+
+  /* ─── Change password ─── */
+  document.getElementById('pf-pass').addEventListener('click', async function () {
+    var cur = document.getElementById('pf-cur').value;
+    var next = document.getElementById('pf-new').value;
+    var confirm = document.getElementById('pf-confirm').value;
+    if (!cur || !next) { setMsg('pf-pass-msg', 'Nhập đủ mật khẩu', false); return; }
+    if (next !== confirm) { setMsg('pf-pass-msg', 'Mật khẩu mới không khớp', false); return; }
+    if (next.length < 8) { setMsg('pf-pass-msg', 'Mật khẩu mới tối thiểu 8 ký tự', false); return; }
+
+    try {
+      var res = await fetch('/api/auth/me/password', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + (chemlabClient.token || ''),
+        },
+        body: JSON.stringify({ currentPassword: cur, newPassword: next }),
+      });
+      var body = await res.json().catch(function () { return {}; });
+      if (!res.ok) throw new Error(body.error || 'Đổi mật khẩu thất bại');
+      document.getElementById('pf-cur').value = '';
+      document.getElementById('pf-new').value = '';
+      document.getElementById('pf-confirm').value = '';
+      setMsg('pf-pass-msg', 'Đã đổi mật khẩu ✓', true);
+    } catch (err) {
+      setMsg('pf-pass-msg', err.message, false);
+    }
+  });
+
+  document.getElementById('profile-lab').addEventListener('click', function () { location.href = 'lab.html'; });
+  document.getElementById('profile-logout').addEventListener('click', function () {
+    var btn = document.getElementById('profile-logout');
+    btn.disabled = true;
+    btn.textContent = 'Đang đăng xuất...';
+    chemlabClient.signOut()
+      .then(function () { location.href = 'index.html'; })
+      .catch(function (err) { btn.disabled = false; btn.textContent = 'Đăng xuất'; showErr('Không thể đăng xuất: ' + (err && err.message ? err.message : 'lỗi')); });
+  });
+</script>
+</body>
+</html>
