@@ -23,6 +23,187 @@ LATEST RUN
 ==============================================================================
 
 Run ID:
+2026-08-03T16:40:00+07:00
+
+Iteration:
+75
+
+Task:
+T-065 Chống vọt ngoại suy (overshoot) khi tay di chuyển/đổi hướng
+
+Changes:
+- `js/hand-bridge.js`:
+  1. Gentler extrapolation: `MAX_EXTRAPOLATE_MS` 100 → 60,
+     `EXTRAPOLATE_FACTOR` 0.6 → 0.3 — lead drops to ~8-18ms while keeping
+     the T-064 latency win.
+  2. Inertia braking in `extrapolateLandmarks`: the velocity used for
+     extrapolation (wrist, bank[0].x/y.dxPrev) is compared with the previous
+     extrapolation's velocity stored on `bank.__velPrev`; direction reversal
+     (dot < 0) shrinks the factor to x0.2, abrupt deceleration (current
+     magnitude < 50% of previous) shrinks it to x0.45 — the cursor no longer
+     runs ahead when the hand stops or reverses.
+- `tests/gesture_tracking.spec.js`: cap expectation updated 0.1 → 0.06
+  (new 60ms window); 2 new braking tests (reversal x0.2, deceleration x0.45).
+
+Tests:
+- Full root low-memory suite: `npm test` -> 90/90 pass (88 previous + 2 new).
+- Syntax: `node --check js/hand-bridge.js` -> pass.
+- Diff hygiene: `git diff --check` -> pass.
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+No active queued tasks after T-065; await new user direction.
+
+-------------------------------------------------------------------------------
+
+Run ID:
+2026-08-03T16:05:00+07:00
+
+Iteration:
+74
+
+Task:
+T-064 Giảm độ trễ hand tracking (filter lag + lead bù inference)
+
+Changes:
+- `js/hand-bridge.js`:
+  1. Faster One-Euro response: `SMOOTH_MINCUTOFF` 0.6 → 1.4,
+     `SMOOTH_BETA` 0.3 → 0.35, `SMOOTH_DCUTOFF` 1.0 → 1.6 — filter lag at
+     slow hand speeds drops from ~200-250ms to ~100ms (alpha ~0.11/frame →
+     ~0.23/frame) while jitter reduction is preserved.
+  2. Fresh-result lead compensation: detectLoop now measures the real
+     inference latency with `performance.now()` around `await
+     handLandmarker.detectForVideo` (`inferenceLatency` loop var) and calls
+     `processFrame(extrapolateResults(modelResults, inferenceLatency))` —
+     new results are extrapolated to the hand's current position instead of
+     a position one inference (~28ms) old. Skipped-tick extrapolation path
+     unchanged.
+  3. Wider extrapolation window: `MAX_EXTRAPOLATE_MS` 80 → 100,
+     `EXTRAPOLATE_FACTOR` 0.5 → 0.6.
+- `tests/gesture_tracking.spec.js`: new test "one-euro filter responds
+  quickly to a step (low lag at slow motion)" — after 2 samples the filter
+  must exceed 40% of the step (>0.2 of a 0.5 step) yet stay below 100%;
+  extrapolation cap expectation updated 0.08 → 0.1 (new 100ms window).
+
+Tests:
+- Full root low-memory suite: `npm test` -> 88/88 pass (87 previous + 1 new).
+- Syntax: `node --check js/hand-bridge.js` -> pass.
+- Diff hygiene: `git diff --check` -> pass.
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+No active queued tasks after T-064; await new user direction.
+
+-------------------------------------------------------------------------------
+
+Run ID:
+2026-08-03T15:10:00+07:00
+
+Iteration:
+73
+
+Task:
+T-063 Nâng cấp hand tracking realtime (latency + FPS + 2-hand stability)
+
+Changes:
+- `js/hand-bridge.js`:
+  1. Velocity extrapolation (latency): new `extrapolateLandmarks(lm, bank,
+     dtMs, factor)` + `extrapolateResults(results, dtMs)` — skipped ticks in
+     detectLoop now process velocity-extrapolated landmarks (One-Euro
+     dxPrev, window capped at 80ms, factor 0.5) instead of stale landmarks,
+     so the pointer keeps tracking at full tick rate between inferences.
+  2. Adaptive inference rate (FPS): `measureMotion()` tracks raw tip
+     displacement between detections; `computeSkipEvery(motion)` returns 3
+     for steady hands (< STEADY_MOTION 0.02) and 1 for fast hands; camera
+     resolution stays at the already-minimal 320x240.
+  3. Primary-hand stability (2 hands): primary selection now prefers the
+     currently active handedness (keep-until-gone), then right, then first —
+     the active hand no longer flickers when the other hand is present or
+     listed first.
+- `tests/harness.js`: exposed `extrapolateLandmarks`, `computeSkipEvery`,
+  `activeHandedness` in the test API.
+- `tests/gesture_tracking.spec.js`: 3 new regression tests (extrapolation +
+  capped window + z preserved; adaptive skip at steady/fast/at-threshold;
+  primary sticky across a 4-frame two-hand sequence).
+
+Tests:
+- Full root low-memory suite: `npm test` -> 87/87 pass (84 previous + 3 new).
+- T-062 menu gesture regression: `/tmp/opencode/verify-menu-gesture.js`
+  (all-pinch->spread fires once, index-pinch never) + `/tmp/opencode/
+  verify-menu-dom.js` (menu opens/closes, 0 console errors) -> PASS.
+- Syntax: `node --check js/hand-bridge.js` + harness + spec -> pass.
+- Diff hygiene: `git diff --check` -> pass.
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+No active queued tasks after T-063; await new user direction.
+
+-------------------------------------------------------------------------------
+
+Run ID:
+2026-08-03T14:10:00+07:00
+
+Iteration:
+72
+
+Task:
+T-062 Menu nổi ẩn chất + dụng cụ (hidden floating menu, pinch-all → spread gesture)
+
+Changes:
+- `js/hand-bridge.js`: added per-hand `allPinchGrace` state and
+  `handleToolMenuGesture()` — pinching all 4 fingertips against the thumb
+  arms a 20-frame grace window; spreading open (pinch released +
+  extendedCount >= 4) dispatches `handscope:tool-menu-toggle` exactly once.
+  Normal thumb+index pinch never arms it (verified: scenario 2 fires 0).
+- `js/lab-scene.js`: new `LabScene.toggleToolMenu(force?)` repositions the
+  existing cabinet/shelf LabNodes into two centered floating glass panels
+  inside the bench when open, hides them (display:none) when closed, and
+  mirrors state on the bench's `aria-expanded`/`aria-label`. Auto-init hides
+  both panels on mount and listens for the toggle event. Cabinet/shelf chips
+  keep their press→spawn-takeover behavior; resetBench untouched.
+- `css/lab.css`: `#lab-bench[aria-expanded="true"]::before` title banner
+  "MENU CHẤT + DỤNG CỤ" (z-index 100002, pointer-events none) with a
+  small-screen override.
+
+Tests:
+- Gesture VM verification (`/tmp/opencode/verify-menu-gesture.js`): all-4-
+  finger pinch then spread open fires the toggle event once; index-pinch then
+  open fires 0 -> PASS.
+- Playwright smoke (`/tmp/opencode/verify-menu-dom.js`): menu hidden by
+  default (display none, aria-expanded=false); toggle event opens centered
+  panels with 7 tool chips + 9 reagent chips; second toggle closes; 0 console
+  errors; screenshot `/tmp/opencode/menu-open.png` -> PASS.
+- Full root low-memory suite: `npm test` -> 84/84 pass.
+- Syntax: `node --check js/hand-bridge.js` + `node --check js/lab-scene.js` -> pass.
+- Diff hygiene: `git diff --check` -> pass.
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+No active queued tasks after T-062; await new user direction.
+
+-------------------------------------------------------------------------------
+
+Run ID:
 2026-08-03T13:10:00+07:00
 
 Iteration:

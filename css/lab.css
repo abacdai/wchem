@@ -209,6 +209,27 @@ body {
   touch-action: none;
 }
 
+#lab-bench[aria-expanded="true"]::before {
+  content: 'MENU CHẤT + DỤNG CỤ';
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  z-index: 100002;
+  transform: translateX(-50%);
+  padding: 7px 12px;
+  border: 1px solid rgba(127,149,255,.45);
+  border-radius: 999px;
+  background: rgba(16,40,77,.88);
+  color: #dde1ff;
+  font: 600 11px "Space Grotesk", sans-serif;
+  letter-spacing: .08em;
+  pointer-events: none;
+}
+
+@media (max-width: 680px) {
+  #lab-bench[aria-expanded="true"]::before { top: 8px; font-size: 9px; }
+}
+
 /* ---------- Calibration ---------- */
 #lab-calibration {
   position: fixed;

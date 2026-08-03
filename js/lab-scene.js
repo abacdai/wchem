@@ -603,6 +603,41 @@
     }
   };
 
+  LabScene.prototype.toggleToolMenu = function (force) {
+    var next = typeof force === 'boolean' ? force : !this._toolMenuOpen;
+    if (!this._cabinet || !this._shelf) return false;
+    this._toolMenuOpen = next;
+    var rect = this._containerRect() || { width: 800, height: 600 };
+    var panelH = Math.min(rect.height - 24, 500);
+    var panelTop = Math.max(12, (rect.height - panelH) / 2);
+    var panelW = Math.min(220, Math.max(168, (rect.width - 48) / 2));
+    var gap = 12;
+    var left = Math.max(12, (rect.width - (panelW * 2 + gap)) / 2);
+    var panels = [this._cabinet, this._shelf];
+    for (var i = 0; i < panels.length; i++) {
+      var panel = panels[i];
+      panel.setVisible(next);
+      if (next) {
+        panel.setPosition(left + i * (panelW + gap), panelTop);
+        panel.setSize(panelW, panelH);
+        panel.element().style.display = 'flex';
+        panel.element().style.padding = '38px 10px 12px';
+        panel.element().style.borderRadius = '18px';
+        panel.element().style.boxShadow = '0 20px 50px rgba(7,24,52,.35)';
+        panel.element().style.border = '1px solid rgba(127,149,255,.45)';
+        panel.element().style.backdropFilter = 'blur(18px)';
+      } else {
+        panel.element().style.display = 'none';
+      }
+    }
+    var bench = this.container;
+    if (bench) {
+      bench.setAttribute('aria-expanded', next ? 'true' : 'false');
+      bench.setAttribute('aria-label', next ? 'Menu chọn chất và dụng cụ đang mở' : 'Bàn thí nghiệm ảo');
+    }
+    return next;
+  };
+
   /* Tủ dụng cụ: strip trái, container pickable:false (rule 9 — không nuốt
      hit của bench); 6 chip dụng cụ pickable, onStart spawn bản sao tại
      điểm chạm và trả { node } để pointer tiếp quản kéo ngay. */
@@ -791,6 +826,10 @@
       if (scene) {
         scene.spawnCabinet();
         scene.spawnShelf();
+        scene.toggleToolMenu(false);
+        window.addEventListener('handscope:tool-menu-toggle', function () {
+          scene.toggleToolMenu();
+        });
         var resetBtn = document.getElementById('lab-resetBench');
         if (resetBtn && resetBtn.addEventListener) {
           resetBtn.addEventListener('click', function () {

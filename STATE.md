@@ -14,7 +14,7 @@ Status:
 🟢 Active Development
 
 Last Updated:
-2026-08-03 13:10:00 +07:00
+2026-08-03 16:40:00 +07:00
 
 Current Cadence:
 Minimal Loop
@@ -23,7 +23,7 @@ Current Phase:
 DONE
 
 Iteration:
-71
+75
 
 # ============================================================================
 # MASTER GOAL
@@ -40,6 +40,145 @@ The AI MUST perform only minimal safe modifications.
 # ============================================================================
 # CURRENT TASK
 # ============================================================================
+
+Task ID:
+T-065
+
+Task Title:
+Chống vọt ngoại suy (overshoot) khi tay di chuyển/đổi hướng
+
+Objective:
+User: "kiểu gia tốc nó hơi quá, khi mà di chuyển các ngón tay rồi bàn tay thì
+nó hơi quá" — con trỏ chạy vọt theo quán tính do ngoại suy vận tốc quá mạnh.
+Root cause: EXTRAPOLATE_FACTOR 0.6 + cửa sổ 100ms không có phanh khi tay
+đảo hướng/giảm tốc → khi thả tay/dừng, con trỏ vẫn lao tiếp vài frame. Fix:
+(1) hạ mức ngoại suy — MAX_EXTRAPOLATE_MS 100 → 60, EXTRAPOLATE_FACTOR 0.6 →
+0.3 (lead còn ~8-18ms, vẫn giữ lợi ích giảm trễ); (2) phanh quán tính trong
+extrapolateLandmarks — so vận tốc hiện tại (cổ tay lm0) với lần ngoại suy
+trước (bank.__velPrev): đảo hướng (dot < 0) → factor ×0.2; giảm tốc quá 50%
+→ factor ×0.45. Giữ nguyên latency, pipeline, cử chỉ.
+
+Expected Result:
+Tay di chuyển nhanh rồi dừng/đổi hướng → con trỏ dừng theo, không lao vọt;
+tay chậm vẫn bám sát (không tụt hậu như trước T-063).
+
+Success Criteria:
+
+- Ngoại suy vẫn hoạt động: test cap cập nhật 0.06 (60ms); z giữ nguyên.
+- Phanh đảo hướng: vận tốc đảo dấu → mức ngoại suy ×0.2 (test mới).
+- Phanh giảm tốc: vận tốc giảm >50% → mức ngoại suy ×0.45 (test mới).
+- Harness 90/90 (88 cũ + 2 mới); node --check + git diff --check sạch;
+  STATE/log cập nhật.
+
+Dependencies:
+T-064 (latency reduction) — DONE
+
+Priority:
+High
+
+Task ID:
+T-064
+
+Task Title:
+Giảm độ trễ hand tracking (filter lag + lead bù inference)
+
+Objective:
+User: "handtracking ít bị delay". Root cause: (1) One-Euro SMOOTH_MINCUTOFF
+0.6 → lag ~200-250ms ở tay chậm (alpha ~0.11/frame); (2) kết quả inference
+phản ánh video cách "bây giờ" ~một lần inference (~28ms) nhưng processFrame
+dùng nguyên landmark cũ. Fix: tăng độ phản hồi filter (SMOOTH_MINCUTOFF 1.4,
+SMOOTH_BETA 0.35, SMOOTH_DCUTOFF 1.6 → lag ~100ms, nhiễu chấp nhận được);
+bù lead ngay khi kết quả MỚI đến — processFrame(extrapolateResults(
+modelResults, inferenceLatency)) với inferenceLatency đo thực tế quanh
+detectForVideo; nới cửa sổ ngoại suy (MAX_EXTRAPOLATE_MS 100, factor 0.6).
+
+Expected Result:
+Con trỏ bám tay rõ rệt hơn khi tay di chuyển chậm (lag filter giảm ~60%);
+kết quả inference mới được bù tới vị trí tay hiện tại thay vì cách đây vài
+chục ms; vẫn lọc nhiễu — không thay pipeline MediaPipe, không đổi camera.
+
+Success Criteria:
+
+- Filter: sau 2 mẫu đạt >40% bước nhảy (test mới 88/88); test jitter cũ
+  vẫn xanh (filter vẫn làm trơn).
+- Fresh path: processFrame nhận kết quả ngoại suy theo inferenceLatency đo
+  thực tế quanh await detectForVideo (biến loop mới, khởi tạo 0).
+- Harness 88/88 (87 cũ + 1 mới, expectation cap ngoại suy cập nhật 80→100ms);
+  node --check + git diff --check sạch; STATE/log cập nhật.
+
+Dependencies:
+T-063 (latency extrapolation) — DONE
+
+Priority:
+High
+
+Task ID:
+T-063
+
+Task Title:
+Nâng cấp hand tracking realtime (latency + FPS + 2-hand stability)
+
+Objective:
+User requested an upgrade of the realtime hand tracking, integrating three
+directions: (1) giảm độ trễ cảm nhận bằng ngoại suy vận tốc One-Euro giữa
+các frame inference; (2) tăng FPS bằng inference thích ứng theo chuyển động
+tay; (3) ổn định tay chính khi có 2 tay (primary sticky) — không giật khi
+hai tay giao thoa. Camera resolution đã ở mức tối thiểu (320x240) nên không
+giảm thêm (giữ độ chính xác). Không thay pipeline MediaPipe.
+
+Expected Result:
+Con trỏ tay bám ngay, không tụt hậu trên tick bỏ qua; tay chậm → inference
+giảm 2/3 frame (FPS cao hơn), tay nhanh → full rate; tay chính không nhảy
+sang tay khác khi cả 2 cùng hiện diện.
+
+Success Criteria:
+
+- Ngoại suy: landmark di chuyển theo dxPrev One-Euro, cửa sổ giới hạn 80ms,
+  factor 0.5; z giữ nguyên.
+- Inference thích ứng: computeSkipEvery(0.001)=3, (0.1)=1, ngưỡng 0.02.
+- Primary sticky: R dẫn trước khi 2 tay; L đứng trước trong mảng không cướp
+  quyền; chuyển tay chính chỉ khi tay cũ biến mất.
+- Harness 87/87 (84 cũ + 3 mới); cử chỉ menu T-062 không hồi quy;
+  node --check + git diff --check sạch; STATE/log cập nhật.
+
+Dependencies:
+T-062 (menu nổi ẩn) — DONE
+
+Priority:
+High
+
+Task ID:
+T-062
+
+Task Title:
+Menu nổi ẩn chất + dụng cụ (hidden floating menu, gesture pinch-all → spread)
+
+Objective:
+Gom toàn bộ hóa chất (kệ shelf) và dụng cụ (tủ cabinet) vào một menu nổi
+ẩn giữa bench thay vì hai strip cố định hai bên. Cử chỉ "chụm hết các đầu
+ngón tay rồi bung mở ra" bật/tắt menu: chụm 4 ngón (thumb+index+middle+
+ring+pinky) rồi bung bàn tay mở → menu hiện giữa bàn thí nghiệm với đầy đủ
+chất và dụng cụ; làm lại cử chỉ → menu ẩn.
+
+Expected Result:
+lab.html không còn 2 strip cố định; cabinet (7 dụng cụ) và shelf (9 hóa
+chất) hiển thị dưới dạng 2 panel nổi giữa bench khi cử chỉ được thực hiện,
+ẩn hoàn toàn khi không mở; kéo chip vẫn spawn bản sao như trước.
+
+Success Criteria:
+
+- Cabinet + shelf ẩn mặc định (display none, aria-expanded=false).
+- Cử chỉ chụm 4 ngón → bung mở phát `handscope:tool-menu-toggle` (đúng 1
+  lần); chụm trỏ thường + mở KHÔNG kích hoạt.
+- Menu mở: 2 panel nổi căn giữa bench (7 chip dụng cụ + 9 chip hóa chất),
+  aria-label cập nhật; menu đóng khi lặp lại cử chỉ.
+- 0 console errors; harness 84/84; STATE/log cập nhật; state lưu agentmemory.
+
+Dependencies:
+T-061 (AR terminology sweep) — DONE
+
+Priority:
+High
 
 Task ID:
 T-061
@@ -486,11 +625,78 @@ High
 # NEXT TASK QUEUE
 # ============================================================================
 
-No active tasks left after T-061.
+No active tasks left after T-065.
 
 # ============================================================================
 # COMPLETED TASKS
 # ============================================================================
+
+- T-065: Chống vọt ngoại suy (overshoot). Done. js/hand-bridge.js: (1) hạ
+  mức ngoại suy — MAX_EXTRAPOLATE_MS 100 → 60, EXTRAPOLATE_FACTOR 0.6 → 0.3
+  (lead ~8-18ms, vẫn giữ lợi ích giảm trễ T-064); (2) phanh quán tính trong
+  extrapolateLandmarks — lưu vận tốc lần ngoại suy trước vào bank.__velPrev
+  (cổ tay lm0: bank[0].x.dxPrev + bank[0].y.dxPrev); đảo hướng (dot < 0) →
+  factor ×0.2; giảm tốc >50% (curMag < prevMag*0.5) → factor ×0.45 → con
+  trỏ dừng theo tay khi tay hãm/đổi chiều thay vì lao vọt. tests/
+  gesture_tracking.spec.js: expectation cap 0.1 → 0.06 (60ms) + 2 test phanh
+  mới (reversal ×0.2, deceleration ×0.45). Verified: harness 90/90 (88 cũ +
+  2 mới), node --check + git diff --check clean. Không thay pipeline
+  MediaPipe/camera; T-062/T-063/T-064 giữ nguyên. Next: await a new user task.
+
+- T-064: Giảm độ trễ hand tracking. Done. js/hand-bridge.js: (1) One-Euro
+  responsive hơn — SMOOTH_MINCUTOFF 0.6 → 1.4, SMOOTH_BETA 0.3 → 0.35,
+  SMOOTH_DCUTOFF 1.0 → 1.6 (lag filter tay chậm ~250ms → ~100ms, nhiễu chấp
+  nhận được); (2) lead bù kết quả mới — detectLoop đo inferenceLatency thực
+  tế quanh await detectForVideo (performance.now) và gọi
+  processFrame(extrapolateResults(modelResults, inferenceLatency)) thay vì
+  processFrame(modelResults), nên landmark phản ánh vị trí tay "bây giờ"
+  thay vì cách đây một lần inference; (3) nới ngoại suy MAX_EXTRAPOLATE_MS
+  80 → 100, EXTRAPOLATE_FACTOR 0.5 → 0.6. tests/gesture_tracking.spec.js:
+  test mới "filter responds quickly" (sau 2 mẫu >40% bước nhảy, vẫn < 100%);
+  expectation cap ngoại suy cập nhật 0.08 → 0.1. Verified: harness 88/88
+  (87 cũ + 1 mới), node --check + git diff --check clean. Không thay
+  pipeline MediaPipe, không đổi camera, không đổi cử chỉ/menu T-062/T-063.
+  Next: await a new user task.
+
+- T-063: Nâng cấp hand tracking realtime (1+2+3). Done. js/hand-bridge.js:
+  (1) extrapolateLandmarks()/extrapolateResults() — trên tick bỏ qua
+  inference, detectLoop xử lý landmark ngoại suy theo vận tốc One-Euro
+  (dxPrev, cửa sổ ≤ 80ms, factor 0.5) thay vì landmark cũ → con trỏ bám tay
+  ở full tick rate, giảm độ trễ cảm nhận; (2) inference thích ứng — đo
+  chuyển động raw tip giữa các lần detect (measureMotion, ngưỡng STEADY_
+  MOTION 0.02), tay chậm bỏ qua 2/3 frame (STEADY_SKIP_EVERY 3), tay nhanh
+  full rate (FAST_SKIP_EVERY 1); (3) primary sticky — chọn tay chính theo
+  activeHandedness trước (giữ nguyên tay đang điều khiển), rồi mới đến tay
+  phải, chỉ chuyển khi tay cũ biến mất. Camera 320x240 đã tối thiểu sẵn.
+  tests/harness.js: expose extrapolateLandmarks, computeSkipEvery,
+  activeHandedness. tests/gesture_tracking.spec.js: 3 regression tests
+  (ngoại suy + cap cửa sổ, skip thích ứng, primary sticky qua 4 frame).
+  Verified: harness 87/87 (84 cũ + 3 mới), cử chỉ menu T-062 PASS
+  (verify-menu-gesture + verify-menu-dom, 0 console errors), node --check
+  + git diff --check clean. Không thay pipeline MediaPipe; không giảm độ
+  chính xác; lab.html/lab-scene/lab-collide untouched. Next: await a new
+  user task.
+
+- T-062: Menu nổi ẩn chất + dụng cụ. Done. js/hand-bridge.js: new per-hand
+  gesture state `allPinchGrace` + `handleToolMenuGesture()` — when all 4
+  fingertips (index/middle/ring/pinky) pinch against the thumb, a 20-frame
+  grace window arms the "spread" detector; spreading open (pinch released +
+  extendedCount >= 4) dispatches `handscope:tool-menu-toggle` once (grace
+  cleared after fire). Normal thumb+index pinch never arms it. js/lab-scene.js:
+  new `LabScene.toggleToolMenu(force?)` — repositions the existing cabinet/
+  shelf containers (kept as LabNodes; same spawn-on-press chips, resetBench
+  intact) into two centered floating panels inside the bench (panelW 168–220,
+  panelH ≤ 500, group centered, glass style: borderRadius/boxShadow/backdrop),
+  `display:none` when closed, `aria-expanded`/`aria-label` updated on the
+  bench; auto-init hides both panels on mount and listens for the toggle
+  event. css/lab.css: `#lab-bench[aria-expanded="true"]::before` banner
+  "MENU CHẤT + DỤNG CỤ" (z 100002, pointer-events none) + small-screen
+  override. Verified: gesture VM test (all-pinch→spread fires once; index
+  pinch→open never), Playwright smoke (hidden by default, 7+9 chips shown
+  centered when opened, closes on second toggle, 0 console errors, screenshot
+  /tmp/opencode/menu-open.png), harness 84/84, node --check clean,
+  git diff --check clean. No new deps; lab.html/hand-bridge core/gaze/lab.js
+  untouched. Next: await a new user task.
 
 - T-051: Heating coupling (ghép nhiệt). Done. The burner is now a 4th seed
   in lab-scene.js SAMPLE_ITEMS (type 'burner', 100x40 at slot x 464, style

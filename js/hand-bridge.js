@@ -26,9 +26,12 @@
     [0, 17],
   ];
 
-  const SMOOTH_MINCUTOFF = 0.6;
-  const SMOOTH_BETA = 0.3;
-  const SMOOTH_DCUTOFF = 1.0;
+  // Cân bằng trễ-jitter: mincutoff cao hơn giúp filter bám tay nhanh hơn
+  // (lag ~250ms trước đây giảm còn ~100ms ở tay chậm) với mức nhiễu chấp nhận
+  // được; dcutoff cao hơn cho ước lượng vận tốc đáp ứng hơn (phục vụ ngoại suy).
+  const SMOOTH_MINCUTOFF = 1.4;
+  const SMOOTH_BETA = 0.35;
+  const SMOOTH_DCUTOFF = 1.6;
 
   let PINCH_ENTER_RATIO = 0.16;
   let PINCH_EXIT_RATIO = 0.26;
@@ -38,6 +41,20 @@
 
   const HAND_LOST_GRACE_MS = 500;
   const PINCH_FORCE_RELEASE_FRAMES = 30;
+  // Sau khi chụm hết 4 ngón, cửa sổ này (frame) cho phép nhận diện "bung mở"
+  // để mở menu — bù trễ One-Euro khi các ngón chưa kịp duỗi trên dữ liệu lọc.
+  const TOOL_MENU_GRACE_FRAMES = 20;
+  // Ngoại suy vận tốc giữa các frame inference: giới hạn cửa sổ dự đoán và
+  // tỷ lệ nhấn (tránh bắn quá tay khi inference lâu hơn bình thường). Mức
+  // nhấn thấp (0.3) + phanh đổi hướng/giảm tốc giữ con trỏ bám tay mà không
+  // chạy vọt theo quán tính (người dùng: "gia tốc hơi quá").
+  const MAX_EXTRAPOLATE_MS = 60;
+  const EXTRAPOLATE_FACTOR = 0.3;
+  // Inference thích ứng: tay chuyển động chậm (< 2% khung hình/chu kỳ phát
+  // hiện) thì bỏ qua nhiều frame hơn; tay nhanh thì chạy full rate.
+  const STEADY_MOTION = 0.02;
+  const FAST_SKIP_EVERY = 1;
+  const STEADY_SKIP_EVERY = 3;
   // While no hand is in view, keep the model at a low polling rate (~10 Hz)
   // instead of a full inference every rAF tick; full rate resumes within one
   // idle gap once a hand reappears (<=100 ms + inference time).
@@ -222,6 +239,7 @@
         dragMode: null,
         wasPinching: false,
         wasFist: false,
+        allPinchGrace: 0,
         lastPt: { x: window.innerWidth / 2, y: window.innerHeight / 2 },
       };
     }
@@ -250,6 +268,76 @@
       }
     }
     return state.pinchState;
+  }
+
+  function handleToolMenuGesture(analysis, isPinching, state) {
+    var allPinched = isPinching && analysis.pinchFingers.length === 4;
+    if (allPinched) {
+      state.allPinchGrace = TOOL_MENU_GRACE_FRAMES;
+    } else if (state.allPinchGrace > 0) {
+      state.allPinchGrace--;
+    }
+    var spreadOpen = state.allPinchGrace > 0 && !isPinching && analysis.extendedCount >= 4;
+    if (spreadOpen || state.allPinchGrace === 0) state.allPinchGrace = 0;
+    if (spreadOpen) {
+      window.dispatchEvent(new CustomEvent('handscope:tool-menu-toggle', {
+        detail: { gesture: 'CHỤM-HẾT-BUNG-MỞ' },
+      }));
+    }
+  }
+
+  /* Ngoại suy landmark theo vận tốc One-Euro (dxPrev, đơn vị/giây) với cửa
+     sổ giới hạn — trên các tick bỏ qua inference, con trỏ vẫn "bám" tay
+     thay vì đứng yên tới khi có kết quả mới (giảm độ trễ cảm nhận). Có phanh
+     quán tính: khi tay đảo hướng hoặc giảm tốc đột ngột, ngoại suy bị thu
+     nhỏ để con trỏ không chạy vọt theo quán tính. */
+  function extrapolateLandmarks(lm, bank, dtMs, factor) {
+    var dt = Math.min(Math.max(dtMs, 0), MAX_EXTRAPOLATE_MS) / 1000;
+    var f = (typeof factor === 'number') ? factor : EXTRAPOLATE_FACTOR;
+    if (dt <= 0) return lm;
+    var fx0 = bank[0] && bank[0].x;
+    var fy0 = bank[0] && bank[0].y;
+    var vx = (fx0 && fx0.dxPrev) || 0;
+    var vy = (fy0 && fy0.dxPrev) || 0;
+    if (bank.__velPrev) {
+      var dot = vx * bank.__velPrev.x + vy * bank.__velPrev.y;
+      if (dot < 0) {
+        f *= 0.2; // đảo hướng: gần như tắt ngoại suy (hết vọt khi quay lại)
+      } else {
+        var prevMag = Math.hypot(bank.__velPrev.x, bank.__velPrev.y);
+        var curMag = Math.hypot(vx, vy);
+        if (prevMag > 0 && curMag < prevMag * 0.5) {
+          f *= 0.45; // đang hãm: ngoại suy ít lại, tránh đi quá đích
+        }
+      }
+    }
+    bank.__velPrev = { x: vx, y: vy };
+    return lm.map(function (p, i) {
+      var fx = bank[i].x;
+      var fy = bank[i].y;
+      return {
+        x: p.x + (fx.dxPrev || 0) * dt * f,
+        y: p.y + (fy.dxPrev || 0) * dt * f,
+        z: p.z,
+      };
+    });
+  }
+
+  function extrapolateResults(results, dtMs) {
+    if (!results || !results.landmarks) return results;
+    var out = { landmarks: [], handedness: results.handedness || [] };
+    for (var i = 0; i < results.landmarks.length; i++) {
+      var h = detectHandedness(results, i) || (i === 0 ? 'R' : 'L');
+      var fb = getFilterBank(h);
+      out.landmarks.push(extrapolateLandmarks(results.landmarks[i], fb, dtMs));
+    }
+    return out;
+  }
+
+  /* Tỷ lệ inference theo chuyển động: tay chậm → ít frame hơn (tiết kiệm
+     FPS), tay nhanh → full rate (không trễ). */
+  function computeSkipEvery(motion) {
+    return motion < STEADY_MOTION ? STEADY_SKIP_EVERY : FAST_SKIP_EVERY;
   }
 
   /* ---------------------------------------------------------
@@ -517,7 +605,8 @@
       drawArOverlay(validHands);
 
       var right = validHands.find(function (v) { return v.handedness === 'R'; });
-      var primary = right || validHands[0];
+      var primary = validHands.find(function (v) { return v.handedness === activeHandedness; })
+        || right || validHands[0];
       var primaryInfo = null;
 
       validHands.forEach(function (v) {
@@ -527,6 +616,7 @@
         var analysis = analyzeHand(v.landmarks);
         var isPinching = resolvePinch(analysis.pinch2D, analysis.span2D, state);
         var isFist = !isPinching && analysis.extendedCount === 0;
+        handleToolMenuGesture(analysis, isPinching, state);
 
         if (v === primary) {
           primaryInfo = { hk: hk, analysis: analysis, pinching: isPinching, fist: isFist };
@@ -575,6 +665,7 @@
           var analysis = analyzeHand(predicted);
           var isPinching = resolvePinch(analysis.pinch2D, analysis.span2D, state);
           var isFist = !isPinching && analysis.extendedCount === 0;
+          handleToolMenuGesture(analysis, isPinching, state);
           var tip = isPinching || isFist
             ? { x: (predicted[4].x + predicted[8].x) / 2, y: (predicted[4].y + predicted[8].y) / 2 }
             : predicted[8];
@@ -886,7 +977,26 @@
     let prevTickAt = 0;
     let lastHandSeenAt = 0;
     let lastIdleDetectAt = 0;
-    let handFrameSkip = false;
+    let handFrameCounter = 0;
+    let lastDetectAt = 0;
+    let lastMotionPx = 0;
+    // Độ trễ thực tế của lần inference gần nhất (ms) — dùng để bù lead khi
+    // kết quả mới đến: landmark từ video cũ, tay đã đi tiếp trong khoảng này.
+    let inferenceLatency = 0;
+    let lastRawTip = null;
+
+    function measureMotion(results) {
+      var lm = results && results.landmarks && results.landmarks[0];
+      if (!lm) return 0;
+      var tip = lm[8];
+      if (!lastRawTip) {
+        lastRawTip = { x: tip.x, y: tip.y };
+        return 0;
+      }
+      var d = Math.hypot(tip.x - lastRawTip.x, tip.y - lastRawTip.y);
+      lastRawTip = { x: tip.x, y: tip.y };
+      return d;
+    }
 
     async function detectLoop() {
       const now = performance.now();
@@ -903,25 +1013,28 @@
         if (handIdle) {
           shouldDetect = now - lastIdleDetectAt >= IDLE_DETECT_GAP_MS;
         } else {
-          // Full-rate inference (~28 ms/frame) caps the app at ~15 FPS with a
-          // hand in view. Alternating detection every other tick halves that
-          // load; OneEuro smoothing covers the ~12 Hz sample rate and the
-          // previous landmarks are re-processed on skipped ticks so the
-          // pointer keeps moving at full tick rate.
-          handFrameSkip = !handFrameSkip;
-          shouldDetect = !handFrameSkip;
+          // Inference thích ứng: tay chậm → bỏ qua 2/3 frame (tiết kiệm
+          // CPU, FPS cao hơn); tay nhanh → full rate (không tăng độ trễ).
+          handFrameCounter++;
+          shouldDetect = (handFrameCounter % computeSkipEvery(lastMotionPx)) === 0;
         }
       }
       if (shouldDetect) {
         modelProcessing = true;
         try {
+          const tInfer0 = performance.now();
           modelResults = await handLandmarker.detectForVideo(video, now);
+          inferenceLatency = performance.now() - tInfer0;
           if (modelResults && modelResults.landmarks && modelResults.landmarks.length > 0) {
             lastHandSeenAt = now;
+            lastMotionPx = measureMotion(modelResults);
           } else if (handIdle) {
             lastIdleDetectAt = now;
           }
-          processFrame(modelResults);
+          // Kết quả mới phản ánh video cách "bây giờ" khoảng inferenceLatency;
+          // ngoại suy lead để con trỏ đặt đúng vị trí tay hiện tại thay vì
+          // vị trí cách đây vài chục ms.
+          processFrame(extrapolateResults(modelResults, inferenceLatency));
         } catch (e) {
           console.warn('detectForVideo error:', e);
         }
@@ -930,8 +1043,11 @@
         // Do not feed predictions back through the filters while inference is
         // pending; doing so turns one observed frame into cumulative drift.
       } else {
-        processFrame(modelResults);
+        // Tick bỏ qua: ngoại suy vận tốc thay vì tái xử lý landmark cũ —
+        // con trỏ tiếp tục di chuyển theo hướng tay ở full tick rate.
+        processFrame(extrapolateResults(modelResults, now - lastDetectAt));
       }
+      lastDetectAt = now;
       detectLoopId = requestAnimationFrame(detectLoop);
     }
     detectLoop();

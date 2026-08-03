@@ -12,6 +12,17 @@ test('gesture tracking smooths landmark jitter without amplifying movement', () 
   assert.ok(largestFilteredStep < largestRawStep, 'filter must reduce frame-to-frame landmark jitter');
 });
 
+test('one-euro filter responds quickly to a step (low lag at slow motion)', () => {
+  const { api } = loadHandBridge();
+  const bank = api.createFilterBank();
+  const f = bank[8].x;
+  f.filter(0, 0);
+  f.filter(0.5, 33);
+  const afterTwoSamples = f.filter(0.5, 66);
+  assert.ok(afterTwoSamples > 0.2, 'filter must reach >40% of the step within 2 samples, got ' + afterTwoSamples);
+  assert.ok(afterTwoSamples < 0.5, 'filter must still lag the step (keeps smoothing, not raw copy)');
+});
+
 test('menu click accepts a practical pinch and preserves release hysteresis', () => {
   const { api, button, events } = loadHandBridge();
   const state = { handKey: 'R', pinchState: false, pinchCooldown: 0, pinchHoldFrames: 0, span2DHistory: [], dragMode: null, wasPinching: false, wasFist: false, lastPt: { x: 0, y: 0 } };
@@ -113,4 +124,65 @@ test('status events are throttled in steady state but emit on gesture change', (
 test('status bar wires an FPS readout element', () => {
   const { requestedIds } = loadHandBridge();
   assert.ok(requestedIds.includes('hb-fps'), 'bridge must fetch the FPS readout span');
+});
+
+test('extrapolateLandmarks moves landmarks along the filter velocity with a capped window', () => {
+  const { api } = loadHandBridge();
+  const bank = api.createFilterBank();
+  bank[0].x.dxPrev = 10;
+  bank[1].y.dxPrev = -4;
+  const lm = [{ x: 0.5, y: 0.5, z: 0 }, { x: 0.2, y: 0.3, z: 0 }];
+  const out = api.extrapolateLandmarks(lm, bank, 40, 0.5);
+  assert.ok(Math.abs(out[0].x - (0.5 + 10 * 0.04 * 0.5)) < 1e-9, 'x must move by dxPrev * dt * factor');
+  assert.ok(Math.abs(out[1].y - (0.3 - 4 * 0.04 * 0.5)) < 1e-9, 'y must move by dyPrev * dt * factor');
+  const far = api.extrapolateLandmarks(lm, bank, 1000, 0.5);
+  assert.ok(Math.abs(far[0].x - (0.5 + 10 * 0.06 * 0.5)) < 1e-9, 'extrapolation window must be capped');
+  assert.equal(out[1].z, 0, 'z must be preserved');
+});
+
+test('extrapolateLandmarks brakes on direction reversal (no overshoot)', () => {
+  const { api } = loadHandBridge();
+  const bank = api.createFilterBank();
+  const lm = [{ x: 0.5, y: 0.5, z: 0 }];
+  bank[0].x.dxPrev = 10;
+  api.extrapolateLandmarks(lm, bank, 40, 0.5);
+  bank[0].x.dxPrev = -10;
+  const out = api.extrapolateLandmarks(lm, bank, 40, 0.5);
+  const braked = 0.5 + (-10) * 0.04 * 0.5 * 0.2;
+  assert.ok(Math.abs(out[0].x - braked) < 1e-9, 'reversed velocity must shrink the extrapolation, got ' + out[0].x);
+});
+
+test('extrapolateLandmarks brakes when the hand decelerates abruptly', () => {
+  const { api } = loadHandBridge();
+  const bank = api.createFilterBank();
+  const lm = [{ x: 0.5, y: 0.5, z: 0 }];
+  bank[0].x.dxPrev = 10;
+  api.extrapolateLandmarks(lm, bank, 40, 0.5);
+  bank[0].x.dxPrev = 4;
+  const out = api.extrapolateLandmarks(lm, bank, 40, 0.5);
+  const braked = 0.5 + 4 * 0.04 * 0.5 * 0.45;
+  assert.ok(Math.abs(out[0].x - braked) < 1e-9, 'deceleration must shrink the extrapolation, got ' + out[0].x);
+});
+
+test('computeSkipEvery reduces inference for steady hands and keeps full rate for fast hands', () => {
+  const { api } = loadHandBridge();
+  assert.equal(api.computeSkipEvery(0.001), 3, 'steady hand must skip frames to save FPS');
+  assert.equal(api.computeSkipEvery(0.1), 1, 'fast hand must run inference at full rate');
+  assert.equal(api.computeSkipEvery(0.02), 1, 'motion at the steady threshold keeps full rate');
+});
+
+test('primary hand is sticky until it disappears', () => {
+  const { api } = loadHandBridge();
+  const R = { handedness: [[{ categoryName: 'Right' }]], landmarks: [makeHand()] };
+  const L = { handedness: [[{ categoryName: 'Left' }]], landmarks: [makeHand()] };
+  const both = { handedness: [[{ categoryName: 'Right' }], [{ categoryName: 'Left' }]], landmarks: [makeHand(), makeHand()] };
+  const bothLeftFirst = { handedness: [[{ categoryName: 'Left' }], [{ categoryName: 'Right' }]], landmarks: [makeHand(), makeHand()] };
+  api.processFrame(both);
+  assert.equal(api.activeHandedness(), 'R', 'right hand must lead when both are present');
+  api.processFrame(bothLeftFirst);
+  assert.equal(api.activeHandedness(), 'R', 'left hand first must not steal the primary role');
+  api.processFrame(L);
+  assert.equal(api.activeHandedness(), 'L', 'primary must switch only after the active hand disappears');
+  api.processFrame(R);
+  assert.equal(api.activeHandedness(), 'R', 'right hand must take over once the left hand is gone');
 });

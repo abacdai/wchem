@@ -81,7 +81,7 @@ function loadHandBridge(opts) {
   let source = fs.readFileSync(path.join(__dirname, '..', 'js', 'hand-bridge.js'), 'utf8');
   source = source.replace(
     '  window.HandScope = {',
-    '  window.__handBridgeTestApi = { createFilterBank, analyzeHand, validateLandmarks, detectPinchFingers, resolvePinch, handleInteraction, processFrame, getHandState, emitStatus, getCachedCanvasRect };\n  window.HandScope = {'
+    '  window.__handBridgeTestApi = { createFilterBank, analyzeHand, validateLandmarks, detectPinchFingers, resolvePinch, handleInteraction, processFrame, getHandState, emitStatus, getCachedCanvasRect, extrapolateLandmarks, computeSkipEvery, activeHandedness: () => activeHandedness };\n  window.HandScope = {'
   );
   vm.runInNewContext(source, context, { filename: 'hand-bridge.js' });
   return { api: context.window.__handBridgeTestApi, button, events, queries, dispatchCount: () => dispatchCount, rectQueries: () => rectQueries, gestureWrites: () => gestureWrites, strokes: () => strokeCount, fills: () => fillCount, requestedIds };
