@@ -5,7 +5,7 @@
 # ============================================================================
 
 Project: Wchem
-Full Name: Wchem — VR Chemistry Lab
+Full Name: Wchem — Hand-Tracked AR Chemistry Lab
 Type: Full-Stack Web Application (hand-tracked chemistry experiments)
 Runtime: OpenCode
 Framework: Loop Engineering
@@ -15,7 +15,7 @@ Last Updated: 2026-07-31
 # WHAT WCHEM IS
 # ============================================================================
 
-Wchem is a VR Chemistry Lab controlled by webcam hand tracking.
+Wchem is a hand-tracked Augmented Reality chemistry lab controlled by webcam hand tracking.
 
 Users interact with a chemistry simulation using hand gestures.
 
@@ -47,11 +47,11 @@ Backend
 # ============================================================================
 
 index.html                  Landing page
-lab.html                    VR Chemistry Lab (main app)
+lab.html                    AR Chemistry Lab (main app)
 css/                        All styles (design-tokens.css is the base)
 js/                         All application JavaScript
   hand-bridge.js            Core MediaPipe hand tracking engine
-  lab.js                    VR Lab application logic
+  lab.js                    AR Lab application logic
   handscope-shell.js        Shell integration layer
   gaze.js                   Eye tracking (experimental)
 assets/                     Images and media

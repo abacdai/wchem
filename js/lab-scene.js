@@ -48,10 +48,12 @@
     this.onStart = opts.onStart || null;
     this.onDrag = opts.onDrag || null;
     this.onEnd = opts.onEnd || null;
+    this.inspectable = opts.inspectable === true;
     this._element = null;
     this._w = opts.w || 0;
     this._h = opts.h || 0;
     this._zIndex = 0;
+    this._inspectBase = null;
   }
 
   LabNode.prototype.element = function () { return this._element; };
@@ -64,6 +66,11 @@
 
   LabNode.prototype.setScale = function (s) {
     this.scale = s;
+    applyTransform(this);
+  };
+
+  LabNode.prototype.setRotation = function (deg) {
+    this.rotation = deg;
     applyTransform(this);
   };
 
@@ -350,6 +357,7 @@
     target.bringToFront();
     var el = target.element();
     if (el && el.classList) el.classList.add(this._draggingClass);
+    this._beginInspect(target);
     if (event.preventDefault) event.preventDefault();
   };
 
@@ -382,6 +390,7 @@
     var dy = ny - node.y;
     node.x = nx;
     node.y = ny;
+    this._updateInspect(node, dx);
     applyTransform(node);
     if (node.onDrag) node.onDrag(node, { x: nx, y: ny, dx: dx, dy: dy });
   };
@@ -403,7 +412,38 @@
     var node = drag.node;
     var el = node.element();
     if (el && el.classList) el.classList.remove(this._draggingClass);
+    this._endInspect(node);
     if (node.onEnd) node.onEnd(node, { interrupted: interrupted });
+  };
+
+  LabScene.prototype._beginInspect = function (node) {
+    if (!node.inspectable || node._inspectBase) return;
+    var el = node.element();
+    node._inspectBase = {
+      scale: node.scale,
+      rotation: node.rotation || 0,
+      boxShadow: el && el.style ? el.style.boxShadow : '',
+    };
+    node.scale = node.scale * 1.08;
+    node.rotation = 0;
+    if (el && el.style) el.style.boxShadow = '0 18px 34px rgba(15,23,42,.22)';
+    applyTransform(node);
+  };
+
+  LabScene.prototype._updateInspect = function (node, dx) {
+    if (!node._inspectBase) return;
+    node.rotation = clamp(dx * 0.8, -10, 10);
+  };
+
+  LabScene.prototype._endInspect = function (node) {
+    if (!node._inspectBase) return;
+    var base = node._inspectBase;
+    var el = node.element();
+    node.scale = base.scale;
+    node.rotation = base.rotation;
+    node._inspectBase = null;
+    if (el && el.style) el.style.boxShadow = base.boxShadow;
+    applyTransform(node);
   };
 
   LabScene.prototype.interrupt = function (pid) {
@@ -493,6 +533,7 @@
         h: spec.h,
         label: spec.label,
         content: spec.label,
+        inspectable: true,
         style: GLASSWARE_STYLES[spec.type],
       });
       this._seedItems.push(node);
@@ -629,6 +670,7 @@
             h: h,
             label: spec.label,
             content: spec.label,
+            inspectable: true,
             style: GLASSWARE_STYLES[spec.type],
           });
           return { node: copy };
@@ -710,6 +752,7 @@
             label: spec.name + ' — ' + spec.formula,
             content: spec.formula,
             title: spec.name + ' — ' + spec.formula,
+            inspectable: true,
             style: {
               background: 'linear-gradient(180deg, transparent 16%, ' + spec.liquid + ' 16%)',
               border: '2px solid rgba(180,200,230,0.75)',

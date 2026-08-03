@@ -21,7 +21,7 @@
       CardNav(document.getElementById('card-nav-root'), {
         logo: 'assets/icon.png',
         logoAlt: 'WChem',
-        logoText: 'WChem VR',
+        logoText: 'WChem AR',
         menuColor: '#ffffff',
         baseColor: 'rgba(15,23,42,0.8)',
         buttonBgColor: '#38bdf8',
@@ -33,7 +33,7 @@
             bgColor: '#1e293b',
             textColor: '#fff',
             links: [
-              { label: 'WChem VR là gì', ariaLabel: 'Về WChem VR', href: '#' },
+              { label: 'WChem AR là gì', ariaLabel: 'Về WChem AR', href: '#' },
               { label: 'Công nghệ Express', ariaLabel: 'Express Backend', href: '#' },
             ]
           },

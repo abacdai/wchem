@@ -5,7 +5,7 @@
 # ============================================================================
 
 Project Name: Wchem
-Project Type: Full-Stack Web Application (VR Chemistry Lab)
+Project Type: Full-Stack Web Application (Hand-Tracked AR Chemistry Lab)
 Framework: Loop Engineering
 AI Runtime: OpenCode
 Current Branch: main
@@ -14,7 +14,7 @@ Status:
 🟢 Active Development
 
 Last Updated:
-2026-08-03 01:00:00 +07:00
+2026-08-03 13:10:00 +07:00
 
 Current Cadence:
 Minimal Loop
@@ -23,7 +23,7 @@ Current Phase:
 DONE
 
 Iteration:
-63
+71
 
 # ============================================================================
 # MASTER GOAL
@@ -42,26 +42,27 @@ The AI MUST perform only minimal safe modifications.
 # ============================================================================
 
 Task ID:
-G5
+T-061
 
 Task Title:
-Chem Lab polish pass — UI/UX refinement
+Remaining AR terminology sweep
 
 Objective:
-Per docs/CHEM-LAB-ROADMAP.md G5: continue UI/UX refinement after feedback accessibility live-region improvements.
+Finish the remaining high-impact AR terminology alignment after the homepage pass.
 
 Expected Result:
-The chemistry lab UI becomes clearer and more polished without regressions.
+Profile page and core project docs consistently describe Wchem as a hand-tracked AR chemistry lab.
 
 Success Criteria:
 
-- Next UI/UX polish target is selected and scoped safely.
+- Profile page metadata/title/navbar use WChem AR terminology.
+- project-context.md describes Wchem as a hand-tracked AR chemistry lab.
+- STRUCTURE.md labels the lab page/styles/scripts as AR Lab assets.
 - Existing hand tracking, bench, reaction, observer, challenge, and accessibility flows remain stable.
-- Relevant tests stay green; STATE/log updated.
-- All existing tests still pass; STATE/log updated.
+- Source checks and root tests stay green; STATE/log updated.
 
 Dependencies:
-G5 feedback accessibility live regions — DONE
+T-060 AR product terminology alignment — DONE
 
 Priority:
 High
@@ -485,9 +486,7 @@ High
 # NEXT TASK QUEUE
 # ============================================================================
 
-1. G5: Chem Lab polish — UI/UX refinement, performance, docs.
-2. Add /api/health UptimeRobot monitor (optional).
-3. Continue FPS improvement beyond 26 (lower priority).
+No active tasks left after T-061.
 
 # ============================================================================
 # COMPLETED TASKS
@@ -567,6 +566,22 @@ High
 - G5 polish: Reduced-motion safeguards. Done. js/lab-collide.js injected CSS for tool coupling pulses, wrong-target feedback, burner flame flicker, and reaction animations now includes @media (prefers-reduced-motion: reduce) overrides that disable animation/transition while preserving static visual state. tests/lab-collide.spec.js mock DOM now captures injected head styles and asserts all three style blocks include the reduced-motion media query. Verified 83/83 root low-memory tests; targeted lab-chem + lab-collide 41/41; node --check clean for js/lab-collide.js. No new deps; lab.html/hand-bridge/gaze untouched. Next: continue G5 feedback accessibility polish.
 
 - G5 polish: Feedback accessibility live regions. Done. js/lab-collide.js #lab-observer now sets aria-live="polite" and aria-relevant="additions text" on the role="log" panel; the dynamic summary also has aria-live="polite"; the challenge guidance/completion block now exposes role="status" plus aria-live="polite" so challenge state changes are announced. tests/lab-collide.spec.js asserts the observer, summary, and challenge live-region attributes during a reactive pour. Verified 83/83 root low-memory tests; targeted lab-chem + lab-collide 41/41; node --check clean for js/lab-collide.js. No new deps; lab.html/hand-bridge/gaze untouched. Next: continue G5 UI/UX refinement.
+
+- G5 polish: Chemistry lab branding metadata. Done. Updated lab.html's browser title, description, and sidebar identity from the retired HandScope drawing-demo wording to Wchem Lab / Phòng thí nghiệm ảo. No interaction, tracking, or chemistry behavior changed. Next: continue G5 UI/UX refinement.
+
+- G5 polish: Live chemistry engine integration. Done. lab.html now loads js/lab-chem.js before js/lab-collide.js, matching the documented architecture and allowing live pours to use window.labChem reactions instead of silently falling back to generic color mixing. No hand tracking, gaze, bench, or collision logic changed. Next: continue G5 UI/UX refinement.
+
+- G5 polish: Lab UI copy localization. Done. Updated lab.html's top-level tab labels, viewport tracking label, and idle hand hint from generic English demo copy to Vietnamese chemistry-lab workflow copy. IDs/classes/data-tab values were preserved, so tab routing, tracking, gaze, bench, and chemistry behavior remain unchanged. Next: continue G5 UI/UX refinement.
+
+- G5 polish: Lab accessibility labels. Done. lab.html now gives the back link an explicit aria-label, adds alt text to the Wchem logo image, and hides decorative Material Symbols from assistive tech. IDs/classes/data-tab values and all tracking/bench/chemistry behavior remain unchanged. Next: continue G5 UI/UX refinement.
+
+- Queue completion: Done. G5 polish has no remaining selected website slice after branding metadata, live chemistry integration, Vietnamese lab copy, and accessibility labels. Optional /api/health monitor item is resolved by the existing deployed site monitor plus a verified live /api/health response {status:"ok"}; UptimeRobot API health monitor creation remains unavailable on the free plan and was not required. FPS improvement beyond 26 is closed without code change because the current hand/gaze optimizations are already in place and no new measured regression/target exists. Verified root 83/83 and taskflow backend 36/36; git diff --check clean. Next: await a new user task.
+
+- T-059: Hand-based object inspection physics. Done. js/lab-scene.js now supports opt-in inspectable LabNodes: on grab they lift to 1.08x scale with a soft shadow, horizontal drag tilts them up to +/-10deg, and release/interrupt restores original scale, rotation, and shadow. Seed glassware, cabinet-spawned glassware copies, and reagent bottles are inspectable; cabinet/shelf chips and plain test nodes remain non-inspectable unless opted in. Added focused lab-scene coverage for lift/tilt/restore. Verified node --check js/lab-scene.js, lab-scene 30/30, root 84/84, git diff --check clean. No new deps; hand-bridge/gaze/lab-collide/lab-chem untouched. Next: await a new user task.
+
+- T-060: AR product terminology alignment. Done. index.html public metadata/title/hero/footer/modal wording and js/landing.js navbar/menu wording now use WChem AR / thực tế tăng cường language instead of WChem VR wording. This is terminology-only; no runtime behavior changed. Verified source checks, root 84/84, git diff --check clean. Next: await a new user task.
+
+- T-061: Remaining AR terminology sweep. Done. profile.html metadata/title/nav, project-context.md product identity, and STRUCTURE.md key file labels now use WChem AR / AR Chemistry Lab wording instead of high-impact WChem VR / VR Lab wording. Historical logs and unrelated archived docs were left unchanged. Verified source checks, root 84/84, git diff --check clean. Next: await a new user task.
 
 - T-050: Pour coupling (ống → bình). Done. Layer 2 coupling engine extended
   in js/lab-collide.js (2 code files: lab-collide.js + lab-scene.js state

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="description" content="HandScope Lab — vẽ và tương tác bằng cử chỉ tay">
+<meta name="description" content="Wchem — phòng thí nghiệm hóa học ảo điều khiển bằng cử chỉ tay">
 <meta name="theme-color" content="#3f56bc">
 <link rel="icon" type="image/png" href="assets/icon.png?v=4">
 <link rel="apple-touch-icon" href="assets/icon.png?v=4">
@@ -16,45 +16,45 @@
 <link rel="stylesheet" href="css/design-tokens.css">
 <link rel="stylesheet" href="css/hand-bridge.css">
 <link rel="stylesheet" href="css/lab.css">
-<title>HandScope Lab</title>
+<title>Wchem Chemistry Lab</title>
 </head>
 <body>
 
 <div id="lab-root">
   <aside class="lab-sidebar">
     <div class="lab-sidebar-header">
-      <a href="index.html" class="lab-back-btn" title="Về trang chủ">
-        <span class="material-symbols-outlined">arrow_back</span>
+      <a href="index.html" class="lab-back-btn" title="Về trang chủ" aria-label="Về trang chủ">
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
       </a>
-      <img src="assets/icon.png" width="24" height="24" style="border-radius:50%;object-fit:cover;">
+      <img src="assets/icon.png" alt="Wchem" width="24" height="24" style="border-radius:50%;object-fit:cover;">
       <div>
-        <div class="lab-sidebar-title">HandScope</div>
-        <div class="lab-sidebar-sub">Standalone demo</div>
+        <div class="lab-sidebar-title">Wchem Lab</div>
+        <div class="lab-sidebar-sub">Phòng thí nghiệm ảo</div>
       </div>
     </div>
-    <div class="lab-tab" data-tab="demo"><span class="material-symbols-outlined">science</span><span>Lab</span></div>
-    <div class="lab-tab" data-tab="calibration"><span class="material-symbols-outlined">visibility</span><span>Eye tracking</span></div>
-    <div class="lab-tab" data-tab="about"><span class="material-symbols-outlined">info</span><span>About</span></div>
+    <div class="lab-tab" data-tab="demo"><span class="material-symbols-outlined" aria-hidden="true">science</span><span>Thí nghiệm</span></div>
+    <div class="lab-tab" data-tab="calibration"><span class="material-symbols-outlined" aria-hidden="true">visibility</span><span>Hiệu chỉnh</span></div>
+    <div class="lab-tab" data-tab="about"><span class="material-symbols-outlined" aria-hidden="true">info</span><span>Hướng dẫn</span></div>
   </aside>
 
   <div class="lab-main">
     <div id="lab-viewport" class="lab-luminous">
       <canvas id="lab-canvas"></canvas>
-      <div id="lab-viewportLabel"><span class="lab-dot"></span><span>GESTURE TRACKING</span></div>
+      <div id="lab-viewportLabel"><span class="lab-dot"></span><span>THEO DÕI CỬ CHỈ</span></div>
       <canvas id="kl-arCanvas"></canvas>
       <div id="lab-bench" role="application" aria-label="Bàn thí nghiệm ảo"></div>
       <button id="lab-resetBench" class="lab-panel-btn" style="position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:100001;" title="Đưa các dụng cụ về vị trí chuẩn" aria-label="Reset bàn thí nghiệm">
-        <span class="material-symbols-outlined" style="font-size:16px;">restart_alt</span> Reset bàn
+        <span class="material-symbols-outlined" style="font-size:16px;" aria-hidden="true">restart_alt</span> Reset bàn
       </button>
       <div id="lab-startOverlay" class="lab-start-overlay">
         <button id="lab-startBtn" class="lab-start-btn">
-          <span class="material-symbols-outlined">videocam</span> Bắt đầu theo dõi tay
+          <span class="material-symbols-outlined" aria-hidden="true">videocam</span> Bắt đầu theo dõi tay
         </button>
       </div>
       <div id="lab-viewportHint">
         <div class="lab-ring"></div>
         <div style="margin-top:-90px;display:flex;flex-direction:column;align-items:center;gap:6px;">
-          <span class="material-symbols-outlined" style="font-size:32px;">front_hand</span>Awaiting Gesture...
+          <span class="material-symbols-outlined" style="font-size:32px;" aria-hidden="true">front_hand</span>Đưa tay vào khung hình...
         </div>
       </div>
 
@@ -90,7 +90,7 @@
       </div>
 
       <div id="lab-about">
-        <h2><span class="material-symbols-outlined" style="font-size:20px;">science</span> Về Phòng Thí Nghiệm Hóa</h2>
+        <h2><span class="material-symbols-outlined" style="font-size:20px;" aria-hidden="true">science</span> Về Phòng Thí Nghiệm Hóa</h2>
         <p>Phòng thí nghiệm hóa học ảo điều khiển bằng tay qua webcam: kéo thả dụng cụ, đổ hóa chất, quan sát phản ứng — như nobook, nhưng tương tác bằng cử chỉ tay.</p>
         <div class="lab-about-section">
           <h3>Công nghệ</h3>
@@ -140,7 +140,7 @@
 
 <div id="lab-toast"></div>
 <button id="lab-stopTracking" class="lab-stop-tracking" hidden>
-  <span class="material-symbols-outlined">videocam_off</span><span>Tắt camera</span>
+  <span class="material-symbols-outlined" aria-hidden="true">videocam_off</span><span>Tắt camera</span>
 </button>
 
 <script>window.HAND_SCOPE_MANUAL_START = true;</script>
@@ -152,6 +152,7 @@
 <script src="js/gaze.js"></script>
 <script src="js/lab.js"></script>
 <script src="js/lab-scene.js"></script>
+<script src="js/lab-chem.js"></script>
 <script src="js/lab-collide.js"></script>
 </body>
 </html>

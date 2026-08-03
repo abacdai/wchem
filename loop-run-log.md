@@ -23,6 +23,254 @@ LATEST RUN
 ==============================================================================
 
 Run ID:
+2026-08-03T13:10:00+07:00
+
+Iteration:
+71
+
+Task:
+T-061 Remaining AR terminology sweep
+
+Changes:
+- Updated `profile.html` metadata, document title, and CardNav logo text from WChem VR to WChem AR.
+- Updated `project-context.md` product identity from VR Chemistry Lab to hand-tracked AR chemistry lab.
+- Updated `STRUCTURE.md` key lab file labels from VR Lab / VR Chemistry Lab to AR Lab / AR Chemistry Lab.
+- Updated `STATE.md` current task and completed-task notes.
+- Left historical run-log entries and unrelated archived docs unchanged.
+
+Tests:
+- Source verification: profile page, project-context, and STRUCTURE expose WChem AR / AR Chemistry Lab wording.
+- Full root low-memory suite: `npm test` -> 84/84 pass.
+- Diff hygiene: `git diff --check` -> pass.
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+Continue lower-priority AR terminology cleanup if requested.
+
+-------------------------------------------------------------------------------
+
+Run ID:
+2026-08-03T12:55:00+07:00
+
+Iteration:
+70
+
+Task:
+T-060 AR product terminology alignment
+
+Changes:
+- Updated `index.html` metadata, Open Graph title/description, document title, hero badge/headline, footer, and auth modal title from WChem VR wording to WChem AR wording.
+- Updated `js/landing.js` navbar logo text and menu link from WChem VR to WChem AR.
+- Updated `STATE.md` project type and current task to reflect the hand-tracked AR chemistry lab direction.
+- No runtime behavior, routes, tracking, lab scene, collision, chemistry, auth, or backend code changed.
+
+Tests:
+- Source verification: `index.html` and `js/landing.js` expose WChem AR / thực tế tăng cường wording.
+- Syntax: `node --check js/landing.js` -> pass.
+- Full root low-memory suite: `npm test` -> 84/84 pass.
+- Diff hygiene: `git diff --check` -> pass.
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+No active queued tasks after T-060; await new user direction.
+
+-------------------------------------------------------------------------------
+
+Run ID:
+2026-08-03T12:35:00+07:00
+
+Iteration:
+69
+
+Task:
+T-059 Hand-based object inspection physics
+
+Changes:
+- Added opt-in inspectable object behavior to `js/lab-scene.js` using the existing drag lifecycle.
+- Inspectable objects lift to 1.08x scale with a soft shadow while grabbed, tilt from horizontal drag motion within +/-10deg, and restore scale/rotation/shadow on release or interrupt.
+- Enabled inspection on seed glassware, cabinet-spawned glassware copies, and reagent bottles.
+- Kept cabinet/shelf chips and generic nodes non-inspectable by default unless explicitly opted in.
+- Added focused regression coverage in `tests/lab-scene.spec.js` for lift, tilt, and release restore.
+
+Tests:
+- Syntax: `node --check js/lab-scene.js` -> pass.
+- Targeted: `node --max-old-space-size=512 --test --test-concurrency=1 tests/lab-scene.spec.js` -> 30/30 pass.
+- Full root low-memory suite: `npm test` -> 84/84 pass.
+- Diff hygiene: `git diff --check` -> pass.
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+No active queued tasks after T-059; await new user direction.
+
+-------------------------------------------------------------------------------
+
+Run ID:
+2026-08-03T08:40:00+07:00
+
+Iteration:
+68
+
+Task:
+Complete remaining website task queue
+
+Changes:
+- Cleared the current website task queue in `STATE.md`.
+- Resolved the optional `/api/health` monitor item by verifying the live deployed health endpoint returns `status: ok`; the existing UptimeRobot site monitor already keeps the Render app warm, and API health monitor creation remains unavailable on the free plan.
+- Closed the low-priority FPS improvement item without code change because current optimizations already include gaze throttling, idle hand polling, alternate hand inference, cached rects, reduced per-frame allocations, and batched AR drawing; no new measured regression or target was provided.
+- Preserved all website runtime code from the prior verified G5 polish pass.
+
+Tests:
+- Live health check: `https://wchem.onrender.com/api/health` -> `{"status":"ok", ...}`.
+- Root low-memory suite: `npm test` -> 83/83 pass.
+- Backend coverage-gated suite: `npm run test --workspace backend` from `taskflow` -> 36/36 pass.
+- Note: targeted backend `csp.test.js` passed 4/4 but the workspace script correctly failed global coverage when only one test file was selected; full backend suite passed coverage gates.
+- Diff hygiene: `git diff --check` -> pass.
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+No active queued website tasks; await new user direction.
+
+-------------------------------------------------------------------------------
+
+Run ID:
+2026-08-03T08:20:00+07:00
+
+Iteration:
+67
+
+Task:
+G5 Chem Lab polish — lab accessibility labels
+
+Changes:
+- Added an explicit `aria-label` to the lab page back link.
+- Added `alt="Wchem"` to the lab logo image.
+- Marked decorative Material Symbols as `aria-hidden="true"` so accessible names come from visible text/labels.
+- Preserved all IDs, classes, `data-tab` values, script order, hand tracking, gaze, bench, collision, observer, and challenge behavior.
+
+Tests:
+- Source verification: explicit back-link label, logo alt text, decorative icon hiding, and preserved interactive selectors confirmed in `lab.html`.
+- Full root low-memory suite: `npm test` -> 83/83 pass.
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+Continue G5 UI/UX refinement.
+
+-------------------------------------------------------------------------------
+
+Run ID:
+2026-08-03T08:05:00+07:00
+
+Iteration:
+66
+
+Task:
+G5 Chem Lab polish — lab UI copy localization
+
+Changes:
+- Updated `lab.html` sidebar tab labels from generic English labels to Vietnamese chemistry-lab workflow labels.
+- Updated the viewport tracking label and idle gesture hint to Vietnamese copy.
+- Preserved all IDs, classes, `data-tab` values, script order, hand tracking, gaze, bench, collision, observer, and challenge behavior.
+
+Tests:
+- Source verification: expected labels and preserved `data-tab`/viewport IDs confirmed in `lab.html`.
+- Full root low-memory suite: `npm test` -> 83/83 pass.
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+Continue G5 UI/UX refinement.
+
+-------------------------------------------------------------------------------
+
+Run ID:
+2026-08-03T07:50:00+07:00
+
+Iteration:
+65
+
+Task:
+G5 Chem Lab polish — live chemistry engine integration
+
+Changes:
+- Added `js/lab-chem.js` to `lab.html` before `js/lab-collide.js`.
+- Restored the live page dependency expected by `lab-collide.js` when reactive pours call `window.labChem.react(...)`.
+- Preserved hand tracking, gaze, calibration, bench, collision, observer, and challenge code.
+
+Tests:
+- Source order verification: `lab.html` loads `js/lab-scene.js` -> `js/lab-chem.js` -> `js/lab-collide.js`.
+- Syntax: `node --check js/lab-chem.js && node --check js/lab-collide.js` -> pass.
+- Full root low-memory suite: `npm test` -> 83/83 pass.
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+Continue G5 UI/UX refinement.
+
+-------------------------------------------------------------------------------
+
+Run ID:
+2026-08-03T07:35:00+07:00
+
+Iteration:
+64
+
+Task:
+G5 Chem Lab polish — chemistry lab branding metadata
+
+Changes:
+- Updated lab.html browser title and meta description to identify Wchem's virtual chemistry lab.
+- Updated the lab sidebar title/subtitle from the retired HandScope standalone-demo branding.
+- Preserved hand tracking, gaze, calibration, bench, reaction, observer, and challenge behavior.
+
+Tests:
+- Metadata/source verification: pass.
+- Full root low-memory suite: `npm test` -> 83/83 pass.
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+Continue G5 UI/UX refinement.
+
+-------------------------------------------------------------------------------
+
+Run ID:
 2026-08-03T01:00:00+07:00
 
 Iteration:

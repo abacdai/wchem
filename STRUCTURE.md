@@ -1,7 +1,7 @@
 # WChem - Cấu Trúc Dự Án
 
 **Cập nhật:** 2026-07-30 03:34 UTC  
-**Dự án:** WChem (VR Chemistry) - Hand tracking chemistry experiments
+**Dự án:** WChem AR - Hand tracking chemistry experiments
 
 ---
 
@@ -10,7 +10,7 @@
 ```
 /home/dominh/Desktop/Wchem/
 ├── 📄 index.html                    # Trang chủ landing page
-├── 📄 lab.html                      # VR Chemistry Lab (ứng dụng chính)
+├── 📄 lab.html                      # AR Chemistry Lab (ứng dụng chính)
 ├── 📄 backend-test.html             # Test backend API
 ├── 📄 start-server.sh               # Script khởi động server
 ├── 📄 insforge.toml                 # Config backend
@@ -19,14 +19,14 @@
 ├── 📁 css/                          # Tất cả file CSS
 │   ├── design-tokens.css            # CSS variables (màu, font, spacing)
 │   ├── hand-bridge.css              # Hand tracking cursor styles
-│   ├── lab.css                      # VR Lab main styles
+│   ├── lab.css                      # AR Lab main styles
 │   ├── landing.css                  # Landing page styles
 │   ├── card-nav.css                 # Navigation styles
 │   └── handscope-shell.css          # HandScope shell styles
 │
 ├── 📁 js/                           # Tất cả file JavaScript
 │   ├── hand-bridge.js               # Hand tracking engine (MediaPipe)
-│   ├── lab.js                       # VR Lab logic
+│   ├── lab.js                       # AR Lab logic
 │   ├── landing.js                   # Landing page logic
 │   ├── card-nav.js                  # Navigation logic
 │   ├── handscope-shell.js           # HandScope shell logic
@@ -86,7 +86,7 @@ cd /home/dominh/Desktop/Wchem
 
 ### Truy cập ứng dụng
 - **Landing page:** http://localhost:8000/index.html
-- **VR Chemistry Lab:** http://localhost:8000/lab.html
+- **AR Chemistry Lab:** http://localhost:8000/lab.html
 - **Backend test:** http://localhost:8000/backend-test.html
 
 ---
@@ -95,17 +95,17 @@ cd /home/dominh/Desktop/Wchem
 
 ### HTML (Root)
 - `index.html` - Trang chủ giới thiệu HandScope
-- `lab.html` - VR Chemistry Lab (ứng dụng chính)
+- `lab.html` - AR Chemistry Lab (ứng dụng chính)
 - `backend-test.html` - Test InsForge backend API
 
 ### CSS (css/)
 - `design-tokens.css` - **Quan trọng nhất** - CSS variables cho toàn bộ design system
-- `lab.css` - Styles chính cho VR Lab
+- `lab.css` - Styles chính cho AR Lab
 - `hand-bridge.css` - Hand tracking cursor và overlay
 
 ### JavaScript (js/)
 - `hand-bridge.js` - **Core** - MediaPipe hand tracking engine
-- `lab.js` - VR Lab application logic
+- `lab.js` - AR Lab application logic
 - `gaze.js` - Eye tracking (thử nghiệm)
 
 ### Docs (docs/)

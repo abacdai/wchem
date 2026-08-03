@@ -138,6 +138,21 @@ test('press records a grab offset so the node never jumps to the pointer', () =>
   assert.equal(node.element().style.transform, 'translate(180px,120px)');
 });
 
+test('inspectable nodes lift, tilt with drag motion, and restore on release', () => {
+  const { scene, press, move, fireWin } = makeScene();
+  const node = scene.spawnNode('beaker', { x: 100, y: 100, w: 80, h: 60, inspectable: true });
+  press(7, 110, 110);
+  assert.equal(node.scale, 1.08, 'pressing an inspectable node must lift it visually');
+  assert.equal(node.element().style.transform, 'translate(100px,100px) scale(1.08)');
+  move(7, 160, 110);
+  assert.equal(node.rotation, 10, 'horizontal drag velocity must tilt the inspected node');
+  assert.equal(node.element().style.transform, 'translate(150px,100px) scale(1.08) rotate(10deg)');
+  fireWin('pointerup', { clientX: 160, clientY: 110, pointerId: 7, button: 0 });
+  assert.equal(node.scale, 1, 'release must restore the original scale');
+  assert.equal(node.rotation, 0, 'release must restore the original rotation');
+  assert.equal(node.element().style.transform, 'translate(150px,100px)');
+});
+
 test('drag clamps in model space to the bench bounds', () => {
   const { scene, press, move } = makeScene();
   scene.spawnNode('beaker', { x: 100, y: 100, w: 80, h: 60 });
