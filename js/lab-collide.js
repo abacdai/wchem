@@ -221,6 +221,8 @@
       panel.id = 'lab-observer';
       panel.setAttribute('role', 'log');
       panel.setAttribute('aria-label', 'Quan sát phản ứng');
+      panel.setAttribute('aria-live', 'polite');
+      panel.setAttribute('aria-relevant', 'additions text');
       panel.style.position = 'fixed';
       panel.style.right = '14px';
       panel.style.top = '86px';
@@ -239,6 +241,7 @@
       panel.appendChild(title);
       var summary = document.createElement('div');
       summary.textContent = 'Chưa có phản ứng.';
+      summary.setAttribute('aria-live', 'polite');
       summary.style.margin = '8px 0';
       panel.appendChild(summary);
       var list = document.createElement('div');
@@ -247,6 +250,8 @@
       var challenge = document.createElement('div');
       challenge.className = 'lab-challenge';
       challenge.textContent = ACTIVE_CHALLENGE.title + ': ' + ACTIVE_CHALLENGE.instruction;
+      challenge.setAttribute('role', 'status');
+      challenge.setAttribute('aria-live', 'polite');
       challenge.style.marginTop = '10px';
       challenge.style.padding = '8px';
       challenge.style.border = '1px solid rgba(125,211,252,.35)';

@@ -14,7 +14,7 @@ Status:
 🟢 Active Development
 
 Last Updated:
-2026-08-03 00:40:00 +07:00
+2026-08-03 01:00:00 +07:00
 
 Current Cadence:
 Minimal Loop
@@ -23,7 +23,7 @@ Current Phase:
 DONE
 
 Iteration:
-62
+63
 
 # ============================================================================
 # MASTER GOAL
@@ -45,23 +45,23 @@ Task ID:
 G5
 
 Task Title:
-Chem Lab polish pass — feedback accessibility
+Chem Lab polish pass — UI/UX refinement
 
 Objective:
-Per docs/CHEM-LAB-ROADMAP.md G5: continue polishing feedback accessibility after adding reduced-motion safeguards to lab interaction animations.
+Per docs/CHEM-LAB-ROADMAP.md G5: continue UI/UX refinement after feedback accessibility live-region improvements.
 
 Expected Result:
-Feedback remains accessible and stable while the hand-controlled chemistry lab polish continues.
+The chemistry lab UI becomes clearer and more polished without regressions.
 
 Success Criteria:
 
-- Next polish target is selected and scoped safely.
-- Existing hand tracking, bench, reaction, observer, and challenge flows remain stable.
+- Next UI/UX polish target is selected and scoped safely.
+- Existing hand tracking, bench, reaction, observer, challenge, and accessibility flows remain stable.
 - Relevant tests stay green; STATE/log updated.
 - All existing tests still pass; STATE/log updated.
 
 Dependencies:
-G5 reduced-motion safeguards — DONE
+G5 feedback accessibility live regions — DONE
 
 Priority:
 High
@@ -485,7 +485,7 @@ High
 # NEXT TASK QUEUE
 # ============================================================================
 
-1. G5: Chem Lab polish — feedback accessibility, UI/UX, performance, docs.
+1. G5: Chem Lab polish — UI/UX refinement, performance, docs.
 2. Add /api/health UptimeRobot monitor (optional).
 3. Continue FPS improvement beyond 26 (lower priority).
 
@@ -565,6 +565,8 @@ High
 - T-058: Thử thách thí nghiệm (optional challenge). Done. js/lab-collide.js now adds a small active challenge section to the existing #lab-observer panel: "Thử thách: Điều chế CO2" instructs users to mix CH3COOH with NaHCO3. When a reaction produces CO2, the challenge marks complete, stores target.state.observer.challenge = "complete", logs completion, and shows "Điểm: 1/1"; observer reset clears entries, reactivates the challenge, resets the bench, and keeps the retry flow. tests/lab-collide.spec.js covers challenge completion and reset. Verified 82/82 root low-memory tests; targeted lab-chem + lab-collide 40/40; node --check clean for js/lab-collide.js. No new deps; lab.html/hand-bridge/gaze untouched. Next: G5 polish pass.
 
 - G5 polish: Reduced-motion safeguards. Done. js/lab-collide.js injected CSS for tool coupling pulses, wrong-target feedback, burner flame flicker, and reaction animations now includes @media (prefers-reduced-motion: reduce) overrides that disable animation/transition while preserving static visual state. tests/lab-collide.spec.js mock DOM now captures injected head styles and asserts all three style blocks include the reduced-motion media query. Verified 83/83 root low-memory tests; targeted lab-chem + lab-collide 41/41; node --check clean for js/lab-collide.js. No new deps; lab.html/hand-bridge/gaze untouched. Next: continue G5 feedback accessibility polish.
+
+- G5 polish: Feedback accessibility live regions. Done. js/lab-collide.js #lab-observer now sets aria-live="polite" and aria-relevant="additions text" on the role="log" panel; the dynamic summary also has aria-live="polite"; the challenge guidance/completion block now exposes role="status" plus aria-live="polite" so challenge state changes are announced. tests/lab-collide.spec.js asserts the observer, summary, and challenge live-region attributes during a reactive pour. Verified 83/83 root low-memory tests; targeted lab-chem + lab-collide 41/41; node --check clean for js/lab-collide.js. No new deps; lab.html/hand-bridge/gaze untouched. Next: continue G5 UI/UX refinement.
 
 - T-050: Pour coupling (ống → bình). Done. Layer 2 coupling engine extended
   in js/lab-collide.js (2 code files: lab-collide.js + lab-scene.js state

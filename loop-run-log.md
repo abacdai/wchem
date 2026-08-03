@@ -23,6 +23,38 @@ LATEST RUN
 ==============================================================================
 
 Run ID:
+2026-08-03T01:00:00+07:00
+
+Iteration:
+63
+
+Task:
+G5 Chem Lab polish — feedback accessibility live regions
+
+Changes:
+- Added polite live-region attributes to `#lab-observer` in `js/lab-collide.js` while preserving its `role="log"` semantics.
+- Added `aria-live="polite"` to the observer summary so reaction guidance changes are announced.
+- Added `role="status"` and `aria-live="polite"` to the challenge block so challenge completion/reset is announced.
+- Added focused assertions in `tests/lab-collide.spec.js` for observer, summary, and challenge accessibility attributes.
+- Updated `STATE.md` to mark this G5 accessibility slice done and queue UI/UX refinement.
+
+Tests:
+- Syntax: `node --check js/lab-collide.js` -> pass.
+- Targeted: `node --max-old-space-size=512 --test --test-concurrency=1 tests/lab-chem.spec.js tests/lab-collide.spec.js` -> 41/41 pass.
+- Full root low-memory suite: `npm test` -> 83/83 pass.
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+G5 UI/UX refinement
+
+-------------------------------------------------------------------------------
+
+Run ID:
 2026-08-03T00:40:00+07:00
 
 Iteration:

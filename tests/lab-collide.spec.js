@@ -450,6 +450,10 @@ test('reactive pours animate the target and record the observation', () => {
   assert.equal(flask.state.observer.products, 'Cu(OH)2(s) + Na2SO4(l)', 'observer state must keep product phases');
   assert.match(document.getElementById('lab-observer')._list.children[0].textContent, /Sản phẩm: Cu\(OH\)2\(s\) \+ Na2SO4\(l\)/, 'observer panel must record products with phases');
   assert.match(document.getElementById('lab-observer')._summary.textContent, /Precipitation: Cu\(OH\)2\(s\)/, 'summary must guide the current observation');
+  assert.equal(document.getElementById('lab-observer').getAttribute('aria-live'), 'polite', 'observer panel must announce new entries politely');
+  assert.equal(document.getElementById('lab-observer')._summary.getAttribute('aria-live'), 'polite', 'observer summary must be a live update');
+  assert.equal(document.getElementById('lab-observer')._challenge.getAttribute('role'), 'status', 'challenge guidance must expose status semantics');
+  assert.equal(document.getElementById('lab-observer')._challenge.getAttribute('aria-live'), 'polite', 'challenge guidance must be announced politely');
   assert.ok(logs.some((line) => line.includes('Quan sát phản ứng: CuSO4(aq)') && line.includes('Có kết tủa') && line.includes('màu rgba(0,100,180,0.7)')), 'console must log the full observation step');
   assert.ok(logs.some((line) => line.includes('Đã đổ 35% Cu(OH)2(s) + Na2SO4(l) vào flask')), 'console must log the post-reaction pour result');
 });
