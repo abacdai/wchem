@@ -2614,3 +2614,11 @@ Docs: STATE.md updated (T-030 done, iteration 31), taskflow/README.md created.
 - Kiểm chứng Playwright: /classic-lab/index.html load 0 console errors,
   0 request failed, fonts loaded, title đúng; index.html có feature card +
   nav link. Jest 52/52, frontend 90/90, diff sạch.
+
+--- Fix deploy: Dockerfile thiếu COPY classic-lab ---
+
+- /classic-lab 404 trên prod (Render build theo Dockerfile có danh sách COPY
+  cố định, chưa có classic-lab). Sửa: COPY classic-lab classic-lab →
+  push 8bb6a36 → rebuild xong: /classic-lab/index.html 200, assets 200,
+  Playwright live 0 lỗi. Bài học: mỗi thư mục tĩnh mới phải thêm vào
+  Dockerfile.
