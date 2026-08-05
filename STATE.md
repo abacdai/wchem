@@ -1706,6 +1706,21 @@ Vận hành còn lại: đặt JWT_SECRET mạnh trên Render, rotate OPENROUTER
 INSFORGE keys, migrate volume mongo cũ nếu dùng docker compose, gỡ
 unsafe-inline CSP (nợ kỹ thuật).
 
+# ============================================================================
+# DEPLOYMENT LOG — 2026-08-05 (push main → GitHub → Render auto-deploy)
+# ============================================================================
+Push origin/main (f0cb77f..8160bbc, 2 commit T-066+T-067) → Render auto-deploy
+thành công. Xác nhận trên production (wchem.io.vn, Render sau Cloudflare):
+- /api/health OK; helmet headers (nosniff, X-Frame-Options, HSTS) hiện diện.
+- Rate limit LIVE: POST /api/auth/login trả x-ratelimit-limit:10,
+  x-ratelimit-scope:login.
+- Frontend mới LIVE: index có anti-debug.js, lab có #lab-modeClassic +
+  anti-debug.js, profile có safeAvatar ×4; js/anti-debug.js 200.
+- E2E live: register 201 + token, /me trả đúng email, avatar svg → 400
+  (Validation failed — "must be an image data URL ... under 200KB").
+- Lưu ý: /index.html và /lab.html redirect 301 sang dạng clean URL (/ và
+  /lab) — các bước kiểm tra HTML cần theo redirect (-L).
+
 Do NOT restart the project.
 
 Continue only.

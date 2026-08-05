@@ -2551,3 +2551,19 @@ Docs: STATE.md updated (T-030 done, iteration 31), taskflow/README.md created.
   E2E: register 201 (Atlas), avatar svg+onerror → 400, avatar png → 200,
   login 11 lần → 429; repro-avatar PASS.
 - STATE.md updated: T-067 DONE, iteration 82.
+
+--- Deployment: push main 8160bbc → production (2026-08-05) ---
+
+- git push origin main (2 commit: edfd765 T-066 + 8160bbc T-067) → Render
+  auto-deploy từ GitHub hoàn tất.
+- Xác minh production https://wchem.io.vn (Render sau Cloudflare):
+  - API: /api/health ok; login trả x-ratelimit-limit:10 + scope:login.
+  - Static: index.html có anti-debug.js; lab.html có #lab-modeClassic +
+    anti-debug.js; profile.html có safeAvatar; js/anti-debug.js HTTP 200.
+  - Helmet: nosniff + X-Frame-Options + HSTS (CSP unsafe-inline vẫn còn —
+    nợ kỹ thuật đã ghi nhận).
+  - E2E live: register 201 + token; /me trả email khớp; avatar svg → 400
+    "must be an image data URL (png/jpg/gif/webp) or http(s) URL under 200KB".
+  - Chú ý kiểm tra: /index.html, /lab.html 301 → clean URL (/, /lab) — phải
+    theo redirect bằng curl -L.
+- Không cần chạm Cloudflare cache (cf-cache-status: DYNAMIC).
