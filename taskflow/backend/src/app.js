@@ -7,6 +7,7 @@ const { createServer } = require('node:http');
 const { initSocket } = require('./socket');
 const authRoutes = require('./routes/auth.routes');
 const compoundRoutes = require('./routes/compound.routes');
+const membershipRoutes = require('./routes/membership.routes');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 
 function createApp() {
@@ -54,6 +55,7 @@ function createApp() {
 
   app.use('/api/auth', authRoutes);
   app.use('/api/compounds', compoundRoutes);
+  app.use('/api/membership', membershipRoutes);
 
   // Clean URLs: redirect known .html pages to their extension-less canonical
   // form (301 preserves bookmarks/links), e.g. /lab.html -> /lab.

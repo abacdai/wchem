@@ -65,9 +65,32 @@
             <button id="lab-modeAR" class="lab-start-btn">
               <span class="material-symbols-outlined" aria-hidden="true">front_hand</span>
               AR — điều khiển bằng tay
+              <span class="lab-mode-soon">Đang phát triển</span>
             </button>
           </div>
-          <p class="lab-mode-hint">Classic: kéo thả dụng cụ trực tiếp bằng chuột hoặc ngón tay. AR: bật camera và chụm ngón cái + trỏ để kéo thả.</p>
+          <p class="lab-mode-hint">Classic: kéo thả dụng cụ trực tiếp bằng chuột hoặc ngón tay. AR: điều khiển bằng cử chỉ tay qua webcam — đang hoàn thiện, sẽ mở cho gói thành viên.</p>
+        </div>
+      </div>
+      <div id="lab-membership" class="lab-start-overlay lab-membership" hidden>
+        <div class="lab-mode-picker">
+          <div class="lab-mode-title">
+            <span class="material-symbols-outlined" aria-hidden="true">front_hand</span>
+            Chế độ AR
+            <span class="lab-mode-soon lab-mode-soon--lg">Đang phát triển</span>
+          </div>
+          <p class="lab-mode-hint" style="max-width:460px;">Chế độ AR (điều khiển bằng tay qua webcam) đang được hoàn thiện và sẽ dành riêng cho gói thành viên. Đăng ký để nhận thông báo sớm và ưu đãi khi ra mắt.</p>
+          <form id="lab-membershipForm" class="lab-membership-form" novalidate>
+            <label for="lab-membershipEmail" style="display:block;font-size:13px;color:#b1c7f5;margin-bottom:6px;">Email của bạn</label>
+            <div class="lab-membership-row">
+              <input id="lab-membershipEmail" type="email" name="email" placeholder="ban@email.com" required autocomplete="email" aria-label="Email đăng ký gói thành viên">
+              <button type="submit" class="lab-start-btn" id="lab-membershipSubmit">
+                <span class="material-symbols-outlined" aria-hidden="true">workspace_premium</span>
+                Đăng ký gói thành viên
+              </button>
+            </div>
+            <div id="lab-membershipMsg" class="lab-membership-msg" role="status"></div>
+          </form>
+          <button type="button" class="lab-panel-btn lab-panel-btn-secondary" id="lab-membershipBack">← Trở lại chọn chế độ</button>
         </div>
       </div>
       <div id="lab-viewportHint">

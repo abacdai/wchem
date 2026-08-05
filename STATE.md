@@ -14,7 +14,7 @@ Status:
 🟢 Active Development
 
 Last Updated:
-2026-08-05 17:45:00 +07:00
+2026-08-05 19:20:00 +07:00
 
 Current Cadence:
 Minimal Loop
@@ -23,7 +23,7 @@ Current Phase:
 DONE
 
 Iteration:
-82
+83
 
 # ============================================================================
 # MASTER GOAL
@@ -40,6 +40,52 @@ The AI MUST perform only minimal safe modifications.
 # ============================================================================
 # CURRENT TASK
 # ============================================================================
+
+Task ID:
+T-068
+
+Task Title:
+Khoá AR sau "Đăng ký gói thành viên" + nhãn "Đang phát triển" (Classic tham khảo chem_lab)
+
+Objective:
+User: đưa link github.com/nsriram/chem_lab (Cambridge Chemistry Lab Simulator —
+bàn thí nghiệm ảo đầy đủ, MIT) làm chuẩn cho bản Classic; chuyển bản AR về
+"Đăng ký gói thành viên" để tiếp cận người dùng, đồng thời gắn nhãn AR "đang
+phát triển" (không mở camera nữa).
+
+Done:
+- lab.html: nút AR có badge .lab-mode-soon "Đang phát triển"; hint cập nhật;
+  overlay #lab-membership (panel đăng ký): tiêu đề + nhãn "Đang phát triển",
+  mô tả ưu đãi khi ra mắt, form email + nút "Đăng ký gói thành viên", nút
+  "← Trở lại chọn chế độ".
+- js/lab.js: startARMode() → mở panel thành viên (không còn startTracking);
+  closeMembershipPanel(); submitMembership() — validate email, POST
+  /api/membership/waitlist {email, plan:'ar'}, hiện thành công/lỗi, chống
+  gửi trùng; startClassicMode() đóng panel nếu còn mở.
+- css/lab.css: .lab-mode-soon pill, .lab-membership (z-index 100010 +
+  [hidden]{display:none} — sửa lỗi hidden bị display:flex của overlay đè),
+  form + input + msg ok/error, .lab-panel-btn-secondary.
+- Backend: models/MembershipLead.js (email unique/lowercase/match, plan enum
+  ['ar']); routes/membership.routes.js POST /api/membership/waitlist — validate
+  email + plan, rateLimit 5/phút/IP, idempotent (201 mới / 200 trùng);
+  app.js mount /api/membership; tests/membership.test.js (4 test).
+
+Expected Result:
+Click AR → thấy "Đang phát triển" + form đăng ký gói thành viên; đăng ký
+email thành công lưu vào DB (waitlist); Classic vẫn mở trực tiếp.
+
+Success Criteria:
+- jest backend 52/52 (48 + 4 membership), eslint sạch, coverage đạt ngưỡng.
+- npm test frontend 90/90; node --check sạch.
+- Playwright repro-membership: badge "Đang phát triển", panel hiện, submit
+  → thông báo thành công, back → picker, Classic → badge CLASSIC, 0 lỗi.
+- STATE/log cập nhật.
+
+Dependencies:
+T-067 (security hardening) — DONE
+
+Priority:
+High
 
 Task ID:
 T-067

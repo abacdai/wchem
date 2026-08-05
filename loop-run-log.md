@@ -2567,3 +2567,34 @@ Docs: STATE.md updated (T-030 done, iteration 31), taskflow/README.md created.
   - Chú ý kiểm tra: /index.html, /lab.html 301 → clean URL (/, /lab) — phải
     theo redirect bằng curl -L.
 - Không cần chạm Cloudflare cache (cf-cache-status: DYNAMIC).
+
+--- Iteration 83: T-068 AR gói thành viên + "Đang phát triển" (DONE) ---
+
+- Task: T-068 — chuyển chế độ AR sang cổng "Đăng ký gói thành viên" kèm
+  nhãn "Đang phát triển"; Classic tham khảo github.com/nsriram/chem_lab
+  (Cambridge Chemistry Lab Simulator, MIT).
+- Files modified:
+  - lab.html: nút AR + badge .lab-mode-soon "Đang phát triển"; overlay
+    #lab-membership (form email + nút Đăng ký gói thành viên + nút quay lại).
+  - js/lab.js: startARMode → mở panel thành viên (bỏ startTracking);
+    submitMembership() gọi POST /api/membership/waitlist {email, plan:'ar'},
+    message ok/error; startClassicMode đóng panel phòng hộ.
+  - css/lab.css: .lab-mode-soon, .lab-membership[hidden]{display:none} (sửa
+    bug hidden bị .lab-start-overlay display:flex đè — Playwright phát hiện),
+    .lab-membership-form/row/msg, .lab-panel-btn-secondary.
+  - taskflow/backend/src/models/MembershipLead.js (mới): email unique,
+    plan enum ['ar'].
+  - taskflow/backend/src/routes/membership.routes.js (mới): POST /waitlist,
+    rateLimit 5/phút/IP, 201 mới / 200 idempotent, 400 email/plan sai.
+  - taskflow/backend/src/app.js: mount /api/membership.
+  - taskflow/backend/tests/membership.test.js (mới): 4 test.
+- Test: jest 52/52 + eslint sạch; frontend 90/90; Playwright repro-membership
+  PASS (badge Đang phát triển, panel hiện, submit → "Đã nhận đăng ký!",
+  back → picker, Classic → CLASSIC, 0 console errors).
+- STATE.md updated: T-068 DONE, iteration 83.
+
+--- T-068 lưu ý kế hoạch ---
+
+- chem_lab (MIT, Vite/React, past papers 9701, marking, PDF) — nếu muốn
+  tích hợp làm Classic mode: cần bàn phạm vi (trang riêng / iframe / nâng
+  cấp lab-scene hiện tại) trước khi code.

@@ -202,6 +202,8 @@
   }
 
   function startClassicMode() {
+    var membership = document.getElementById('lab-membership');
+    if (membership) membership.hidden = true;
     document.getElementById('lab-startOverlay').classList.add('lab-hidden');
     stopTrackingBtn.hidden = true;
     setModeBadge('classic');
@@ -211,14 +213,65 @@
 
   function startARMode() {
     document.getElementById('lab-startOverlay').classList.add('lab-hidden');
-    stopTrackingBtn.hidden = false;
-    setModeBadge('ar');
-    gazeState.textContent = 'Đang tải mô hình theo dõi...';
-    startTracking();
+    var panel = document.getElementById('lab-membership');
+    panel.hidden = false;
+    log('Chế độ AR đang phát triển — hướng dẫn đăng ký gói thành viên');
+  }
+
+  function closeMembershipPanel() {
+    document.getElementById('lab-membership').hidden = true;
+    document.getElementById('lab-startOverlay').classList.remove('lab-hidden');
+  }
+
+  function submitMembership(e) {
+    e.preventDefault();
+    var input = document.getElementById('lab-membershipEmail');
+    var msg = document.getElementById('lab-membershipMsg');
+    var btn = document.getElementById('lab-membershipSubmit');
+    var email = (input.value || '').trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      msg.textContent = 'Vui lòng nhập email hợp lệ.';
+      msg.className = 'lab-membership-msg lab-membership-msg--error';
+      input.focus();
+      return;
+    }
+    msg.textContent = '';
+    btn.disabled = true;
+    btn.textContent = 'Đang gửi...';
+    fetch('/api/membership/waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, plan: 'ar' }),
+    })
+      .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+      .then(function (r) {
+        if (r.ok) {
+          msg.textContent = 'Đã nhận đăng ký! Chúng tôi sẽ liên hệ bạn khi chế độ AR sẵn sàng.';
+          msg.className = 'lab-membership-msg lab-membership-msg--ok';
+          input.value = '';
+          input.readOnly = true;
+        } else if (r.data && r.data.details && r.data.details.email) {
+          msg.textContent = r.data.details.email;
+          msg.className = 'lab-membership-msg lab-membership-msg--error';
+        } else if (r.data && r.data.error) {
+          msg.textContent = r.data.error;
+          msg.className = 'lab-membership-msg lab-membership-msg--error';
+        }
+      })
+      .catch(function () {
+        msg.textContent = 'Không kết nối được máy chủ. Vui lòng thử lại.';
+        msg.className = 'lab-membership-msg lab-membership-msg--error';
+      })
+      .then(function () {
+        btn.disabled = false;
+        btn.textContent = 'Đăng ký gói thành viên';
+      });
   }
 
   document.getElementById('lab-modeClassic').addEventListener('click', startClassicMode);
   document.getElementById('lab-modeAR').addEventListener('click', startARMode);
+  document.getElementById('lab-membershipBack').addEventListener('click', closeMembershipPanel);
+  document.getElementById('lab-membershipForm').addEventListener('submit', submitMembership);
   var modeBadge = document.getElementById('lab-mode-badge');
   if (modeBadge) modeBadge.addEventListener('click', openModePicker);
   var modeChip = document.getElementById('lab-modeChip');

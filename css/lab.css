@@ -550,6 +550,81 @@ input, textarea {
   text-align: center;
 }
 
+.lab-mode-soon {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,183,77,0.55);
+  background: rgba(255,183,77,0.16);
+  color: #ffd9a0;
+  font: 700 10px 'Space Grotesk', sans-serif;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.lab-mode-soon--lg {
+  font-size: 11px;
+  margin-left: 10px;
+  padding: 4px 12px;
+}
+.lab-start-btn { flex-wrap: wrap; }
+.lab-start-btn .lab-mode-soon { margin-left: 0; width: 100%; }
+
+/* ---------- Đăng ký gói thành viên (AR đang phát triển) ---------- */
+.lab-membership { z-index: 100010; }
+.lab-membership[hidden] { display: none; }
+.lab-membership-form {
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+.lab-membership-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.lab-membership-row input[type="email"] {
+  flex: 1 1 200px;
+  min-width: 0;
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(127,149,255,0.35);
+  background: rgba(10,26,52,0.9);
+  color: #eaf1ff;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  outline: none;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.lab-membership-row input[type="email"]:focus {
+  border-color: #7f95ff;
+  box-shadow: 0 0 0 3px rgba(127,149,255,0.2);
+}
+.lab-membership-row .lab-start-btn {
+  flex: 0 1 auto;
+  min-width: 0;
+  padding: 0 18px;
+  font-size: 13px;
+}
+.lab-membership-msg {
+  min-height: 18px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.lab-membership-msg--ok { color: #7ee2a8; }
+.lab-membership-msg--error { color: #ff9d9d; }
+.lab-panel-btn-secondary {
+  background: transparent;
+  border: 1px solid rgba(127,149,255,0.35);
+  color: #b1c7f5;
+}
+
 /* ---------- Start overlay ---------- */
 .lab-start-overlay {
   position: absolute;
