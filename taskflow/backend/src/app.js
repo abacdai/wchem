@@ -71,6 +71,10 @@ function createApp() {
   // backend/) from the project root unless STATIC_DIR is set. `extensions:
   // ['html']` lets /lab and /profile resolve to lab.html / profile.html.
   const staticDir = process.env.STATIC_DIR || path.resolve(__dirname, '..', '..', '..');
+  // Classic Cambridge lab (vendored chem_lab): serve the pre-built app from
+  // classic-lab/dist/ (full source lives in classic-lab/). Mount before the
+  // generic static middleware so /classic-lab resolves to the build.
+  app.use('/classic-lab', express.static(path.join(staticDir, 'classic-lab', 'dist'), { index: 'index.html' }));
   app.use(express.static(staticDir, { dotfiles: 'deny', index: 'index.html', extensions: ['html'] }));
 
   app.use(notFound);
