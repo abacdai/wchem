@@ -53,10 +53,21 @@ function createApp() {
   app.use('/api/auth', authRoutes);
   app.use('/api/compounds', compoundRoutes);
 
+  // Clean URLs: redirect known .html pages to their extension-less canonical
+  // form (301 preserves bookmarks/links), e.g. /lab.html -> /lab.
+  app.use((req, res, next) => {
+    if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+    const m = req.path.match(/^\/(index|lab|profile)\.html$/);
+    if (!m) return next();
+    const target = m[1] === 'index' ? '/' : '/' + m[1];
+    return res.redirect(301, target + req.url.slice(req.path.length));
+  });
+
   // Serve the WChem static app (index.html, lab.html, css/, js/, assets/,
-  // backend/) from the project root unless STATIC_DIR is set.
+  // backend/) from the project root unless STATIC_DIR is set. `extensions:
+  // ['html']` lets /lab and /profile resolve to lab.html / profile.html.
   const staticDir = process.env.STATIC_DIR || path.resolve(__dirname, '..', '..', '..');
-  app.use(express.static(staticDir, { dotfiles: 'deny', index: 'index.html' }));
+  app.use(express.static(staticDir, { dotfiles: 'deny', index: 'index.html', extensions: ['html'] }));
 
   app.use(notFound);
   app.use(errorHandler);

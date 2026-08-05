@@ -14,7 +14,7 @@ Status:
 🟢 Active Development
 
 Last Updated:
-2026-08-03 16:40:00 +07:00
+2026-08-05 13:40:00 +07:00
 
 Current Cadence:
 Minimal Loop
@@ -23,7 +23,7 @@ Current Phase:
 DONE
 
 Iteration:
-75
+80
 
 # ============================================================================
 # MASTER GOAL
@@ -620,6 +620,25 @@ High
   user confirmed the feel is good (T-029)
 - Web app is a VIRTUAL CHEMISTRY LAB (user constraint) — use free open-source
   tooling (PubChem, 3Dmol.js), never code from zero
+- Backend DB: LOCAL MongoDB via Docker (iteration 77) — Atlas credentials in
+  taskflow/backend/.env were rejected (bad auth) and the server could not
+  start, breaking login/register. MONGODB_URI now
+  mongodb://127.0.0.1:27017/wchem. To run the backend:
+  `docker start wchem-mongo` (container auto-starts via --restart
+  unless-stopped; data persisted in the wchem-mongo-data volume) then
+  ./start-server.sh (Express on :8000). JWT_SECRET in .env untouched.
+- Backend DB: switched to MongoDB ATLAS (iteration 78) — user reset the
+  Atlas password for dmtriet002_db_user (cluster0.bicumi7); verified
+  register/login/me round-trip against Atlas wchem (7 real production
+  accounts present — never delete). taskflow/backend/.env now uses the
+  mongodb+srv URI with db /wchem + the same JWT_SECRET
+  (Z8W0XtB7c9GQGsGvmRGWDzmCBMKPki02lQNRY+F21Bc=) that goes on Render.
+  Local Docker container wchem-mongo still exists but is no longer used.
+  Render service `wchem` (Image/Docker, virginia) is SUSPENDED — the ONLY
+  remaining step is on the Render dashboard: set MONGODB_URI +
+  JWT_SECRET env vars, Save, Resume, check https://wchem.onrender.com/api/health.
+  Render free tier sleeps after 15 min idle — UptimeRobot ping every 5 min
+  keeps it awake.
 
 # ============================================================================
 # NEXT TASK QUEUE
@@ -630,6 +649,57 @@ No active tasks left after T-065.
 # ============================================================================
 # COMPLETED TASKS
 # ============================================================================
+
+- Clean professional URLs (iteration 80). Done. The Express server now
+  serves extension-less URLs and 301-redirects the .html forms to them:
+  / -> index.html, /lab -> lab.html, /profile -> profile.html; /index.html
+  -> /, /lab.html -> /lab, /profile.html -> /profile (301, query preserved).
+  taskflow/backend/src/app.js: canonical redirect middleware before static +
+  express.static options { index: 'index.html', extensions: ['html'] }.
+  Frontend links (lab.html, profile.html) keep working via the 301s.
+  New tests/static.test.js (9 tests) — backend suite now 45/45, eslint clean.
+  Verified live: / /lab /profile 200; .html forms 301 to clean paths; query
+  preserved; unknown 404. Pending Render redeploy (commit+push) to go live.
+
+- Render missing profile.html (iteration 79). Done. /profile.html returned
+  "Route not found" on Render (404) because the Dockerfile only copied
+  index.html + lab.html — profile.html (T-043 page, linked from the navbar
+  avatar) was missing from the image. Local was unaffected (static dir serves
+  the whole project). Fix: Dockerfile COPY now includes profile.html
+  (index.html lab.html profile.html ./). Renders must rebuild the image —
+  commit + push (or Manual Deploy) then verify
+  https://wchem.onrender.com/profile.html returns 200.
+
+- Login/register failure fix (iteration 77). Done. Root cause: the Express +
+  MongoDB backend could NOT start — taskflow/backend/.env pointed to MongoDB
+  Atlas (mongodb+srv://...wchem) and Atlas rejected the stored credentials
+  ("bad auth: Authentication failed", AtlasError code 8000), so every /api
+  call failed and đăng nhập/đăng ký always errored. Fix (user-approved):
+  started a local MongoDB via Docker (`docker run -d --name wchem-mongo -p
+  27017:27017 -v wchem-mongo-data:/data/db --restart unless-stopped mongo:7`)
+  and set MONGODB_URI=mongodb://127.0.0.1:27017/wchem in taskflow/backend/.env
+  (JWT_SECRET untouched; .env is gitignored). Verified: /api/health ok;
+  curl register 201+token, duplicate 409, login token ok, wrong password 401,
+  /auth/me ok, /compounds ok; Playwright end-to-end on index.html — đăng ký
+  then đăng nhập both close the modal, authenticate, and show the navbar
+  avatar, 0 console errors; backend suite 36/36 (MongoMemoryServer), eslint
+  clean. No frontend/API contract changes needed — the logic was already
+  correct. Next: await a new user task.
+
+- Mobile menu overflow fix (iteration 76). Done. js/lab-scene.js toggleToolMenu
+  now stacks the two floating menu panels vertically when the bench is too
+  narrow for the side-by-side layout (rect.width < fit*2 + gap + 24 — i.e.
+  viewport ≈ ≤440px). Previously, opening the chất + dụng cụ menu on a 375px
+  phone positioned both 168px-wide panels in one row: the second panel's right
+  edge reached x=428 beyond the bench's 363px right edge and was clipped ~39%
+  by the viewport overflow (shelf chips cut off). Now at 375x667 both panels
+  stack full-width (220x220.5) inside the bench (105.5..325.5, 24..477); at
+  768x1024 and desktop the side-by-side layout is unchanged (verified
+  side-by-side: panel2 right 638 < bench 756; desktop 1056 < 1420). Playwright
+  check at 375/768/1440: all panels inside bench bounds, no horizontal page
+  overflow (scrollW == innerW), 0 console errors. Root suite 90/90 (incl.
+  lab-scene 30/30), node --check + git diff --check clean. No new deps;
+  lab.html/hand-bridge/gaze/lab-collide untouched. Next: await a new user task.
 
 - T-065: Chống vọt ngoại suy (overshoot). Done. js/hand-bridge.js: (1) hạ
   mức ngoại suy — MAX_EXTRAPOLATE_MS 100 → 60, EXTRAPOLATE_FACTOR 0.6 → 0.3

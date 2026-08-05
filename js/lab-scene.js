@@ -608,17 +608,20 @@
     if (!this._cabinet || !this._shelf) return false;
     this._toolMenuOpen = next;
     var rect = this._containerRect() || { width: 800, height: 600 };
-    var panelH = Math.min(rect.height - 24, 500);
-    var panelTop = Math.max(12, (rect.height - panelH) / 2);
-    var panelW = Math.min(220, Math.max(168, (rect.width - 48) / 2));
     var gap = 12;
-    var left = Math.max(12, (rect.width - (panelW * 2 + gap)) / 2);
+    var fit = Math.max(168, (rect.width - 48) / 2);
+    var stacked = rect.width < (fit * 2 + gap + 24);
+    var cols = stacked ? 1 : 2;
+    var panelW = Math.min(220, Math.max(168, (rect.width - 48) / cols));
+    var panelH = Math.min(rect.height - 24, stacked ? (rect.height - 24 - gap) / 2 : 500);
+    var panelTop = stacked ? 12 : Math.max(12, (rect.height - panelH) / 2);
+    var left = Math.max(12, (rect.width - (panelW * cols + gap * (cols - 1))) / 2);
     var panels = [this._cabinet, this._shelf];
     for (var i = 0; i < panels.length; i++) {
       var panel = panels[i];
       panel.setVisible(next);
       if (next) {
-        panel.setPosition(left + i * (panelW + gap), panelTop);
+        panel.setPosition(left + (i % cols) * (panelW + gap), panelTop + Math.floor(i / cols) * (panelH + gap));
         panel.setSize(panelW, panelH);
         panel.element().style.display = 'flex';
         panel.element().style.padding = '38px 10px 12px';

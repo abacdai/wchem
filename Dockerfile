@@ -11,7 +11,7 @@ RUN cd taskflow/backend && npm install --omit=dev --no-audit --no-fund
 COPY taskflow/backend/src taskflow/backend/src
 
 # Static WChem app (served by Express from /app — matches STATIC_DIR default)
-COPY index.html lab.html ./
+COPY index.html lab.html profile.html ./
 COPY css css
 COPY js js
 COPY assets assets

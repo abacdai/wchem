@@ -23,6 +23,203 @@ LATEST RUN
 ==============================================================================
 
 Run ID:
+2026-08-05T13:40:00+07:00
+
+Iteration:
+80
+
+Task:
+Clean professional URLs (no .html suffix) for the hosted app
+
+Changes:
+- `taskflow/backend/src/app.js`:
+  1. Canonical redirect middleware (before static): GET/HEAD /index.html ->
+     /, /lab.html -> /lab, /profile.html -> /profile (301, query preserved).
+  2. express.static now uses { index: 'index.html', extensions: ['html'] }
+     so /lab and /profile resolve to lab.html / profile.html.
+- New `tests/static.test.js`: 9 regression tests (/, /lab, /profile 200;
+  301 for each .html form; query preservation; unknown 404).
+
+Tests:
+- Backend suite: 45/45 pass (36 previous + 9 new static tests).
+- Live check (local :8000): / /lab /profile -> 200; /lab.html ->
+  301 /lab; /profile.html -> 301 /profile; /index.html -> 301 /;
+  /lab.html?tab=calibration -> 301 /lab?tab=calibration; /nope.html -> 404.
+- Frontend links (lab.html, profile.html, index.html) untouched — they keep
+  working through the 301s, no regression risk.
+
+Current Phase:
+DONE
+
+Outcome:
+Success (pending Render redeploy by user)
+
+Next Task:
+Commit + push (or Manual Deploy) on Render, then verify
+https://wchem.io.vn/lab, /profile, / all 200 without .html.
+
+-------------------------------------------------------------------------------
+
+Run ID:
+2026-08-05T13:00:00+07:00
+
+Iteration:
+79
+
+Task:
+Fix "Route not found: GET /profile.html" on Render
+
+Changes:
+- Root cause: the Dockerfile copied only `index.html lab.html` into the image,
+  so the profile page (T-043, linked from the navbar avatar) 404'd on Render
+  while local worked (Express static dir serves the whole project).
+- Fix: Dockerfile line 14 now copies all three pages:
+  `COPY index.html lab.html profile.html ./`.
+- Requires a Render rebuild to take effect (git push → auto-deploy, or
+  Manual Deploy → Deploy). Verify:
+  https://wchem.onrender.com/profile.html should return 200 afterwards.
+
+Tests:
+- Local server: GET /profile.html -> 200 (unchanged).
+- Render before fix: GET /profile.html -> 404 (confirmed root cause).
+- Dockerfile audit: all root pages (index/lab/profile) present in COPY lines.
+
+Current Phase:
+DONE
+
+Outcome:
+Success (pending Render redeploy by user)
+
+Next Task:
+Push + redeploy on Render, verify /profile.html 200.
+
+-------------------------------------------------------------------------------
+
+Run ID:
+2026-08-05T12:10:00+07:00
+
+Iteration:
+78
+
+Task:
+Switch backend to MongoDB Atlas + unify JWT_SECRET (Render readiness)
+
+Changes:
+- User reset the Atlas password for `dmtriet002_db_user` (cluster0.bicumi7).
+  Verified the new mongodb+srv URI connects (1.9s) and that Atlas `wchem`
+  already holds 7 real production accounts — test users were created and
+  removed, real accounts untouched.
+- `taskflow/backend/.env` now uses the Atlas URI
+  (`mongodb+srv://...@cluster0.bicumi7.mongodb.net/wchem?...&appName=Cluster0`)
+  and the shared production JWT_SECRET
+  (`Z8W0XtB7c9GQGsGvmRGWDzmCBMKPki02lQNRY+F21Bc=`), so local dev talks to
+  the same DB + same token key as Render.
+- Restarted the local Express server on :8000 with the new .env; verified
+  register 201 + token, login token, /auth/me round-trip against Atlas.
+  Local Docker `wchem-mongo` container left running but no longer used.
+
+Tests:
+- API round-trip against Atlas: register/login/me all pass; test users
+  cleaned up (7 real users remain).
+- Backend suite unchanged (36/36, MongoMemoryServer — independent of Atlas).
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+Render dashboard (user's action — cannot be done from this machine):
+set MONGODB_URI + JWT_SECRET on service `wchem`, Save, Resume, then verify
+https://wchem.onrender.com/api/health returns {"status":"ok"}.
+
+-------------------------------------------------------------------------------
+
+Run ID:
+2026-08-05T11:15:00+07:00
+
+Iteration:
+77
+
+Task:
+Fix login/register — backend could not start (Atlas auth failure)
+
+Changes:
+- Root cause: `taskflow/backend/.env` MONGODB_URI pointed to MongoDB Atlas and
+  Atlas rejected the stored credentials — the server died at startup
+  (`MongoServerError: bad auth: Authentication failed`), so every /api call
+  (login/register/me/compounds) failed and the sign-in modal always errored.
+- Fix (user-approved, local DB): started local MongoDB
+  `docker run -d --name wchem-mongo -p 27017:27017
+  -v wchem-mongo-data:/data/db --restart unless-stopped mongo:7` and set
+  `MONGODB_URI=mongodb://127.0.0.1:27017/wchem` in taskflow/backend/.env
+  (JWT_SECRET untouched; .env is gitignored).
+- No frontend or API contract changes — the auth logic was already correct.
+
+Tests:
+- API (curl): register 201 + token; duplicate register 409; login token ok;
+  wrong password 401; GET /auth/me ok; GET /compounds ok; /api/health ok.
+- End-to-end (Playwright, index.html): đăng ký flow and đăng nhập flow both
+  close the modal, authenticate, and show the navbar avatar; 0 console errors.
+- Backend suite: 36/36 pass (3 suites, MongoMemoryServer).
+- Lint: backend eslint clean.
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+No active queued tasks; await new user direction.
+
+Note:
+To run the backend later: `docker start wchem-mongo` (container has
+--restart unless-stopped) then `./start-server.sh` (Express on :8000).
+
+-------------------------------------------------------------------------------
+
+Run ID:
+2026-08-05T10:30:00+07:00
+
+Iteration:
+76
+
+Task:
+Mobile menu overflow fix — floating menu panels clipped on narrow screens
+
+Changes:
+- `js/lab-scene.js` (`toggleToolMenu`): when the bench is too narrow for the
+  two side-by-side panels (rect.width < fit*2 + gap + 24, i.e. viewport
+  ~440px or less), the chất + dụng cụ panels now stack vertically full-width
+  instead of sitting in one row. Previously a 375px phone laid both 168px
+  panels in a row: panel 2 spanned to x=428 while the bench ends at 363 —
+  the viewport overflow clipped ~39% of the shelf panel. Now at 375x667 both
+  panels stack (220x220.5 each, fully inside 24..477), with internal scroll
+  preserved; at 768x1024 and desktop the side-by-side layout is unchanged.
+
+Tests:
+- Playwright audit at 375x667 / 768x1024 / 1440x900: menu open → all panels
+  inside bench bounds, no horizontal page overflow (scrollW == innerW),
+  0 console errors.
+- Targeted: `node --test tests/lab-scene.spec.js` -> 30/30 pass.
+- Full root low-memory suite: `npm test` -> 90/90 pass.
+- Syntax: `node --check js/lab-scene.js` -> pass.
+- Diff hygiene: `git diff --check` -> pass.
+
+Current Phase:
+DONE
+
+Outcome:
+Success
+
+Next Task:
+No active queued tasks; await new user direction.
+
+-------------------------------------------------------------------------------
+
+Run ID:
 2026-08-03T16:40:00+07:00
 
 Iteration:
