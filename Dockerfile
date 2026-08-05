@@ -15,6 +15,7 @@ COPY index.html lab.html profile.html ./
 COPY css css
 COPY js js
 COPY assets assets
+COPY classic-lab classic-lab
 COPY backend/chemlab-client.js backend/chemlab-client.js
 
 ENV PORT=8000
