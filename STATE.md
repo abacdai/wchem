@@ -14,7 +14,7 @@ Status:
 🟢 Active Development
 
 Last Updated:
-2026-08-05 13:40:00 +07:00
+2026-08-05 16:10:00 +07:00
 
 Current Cadence:
 Minimal Loop
@@ -23,7 +23,7 @@ Current Phase:
 DONE
 
 Iteration:
-80
+81
 
 # ============================================================================
 # MASTER GOAL
@@ -40,6 +40,66 @@ The AI MUST perform only minimal safe modifications.
 # ============================================================================
 # CURRENT TASK
 # ============================================================================
+
+Task ID:
+T-066
+
+Task Title:
+Bảo mật + UX: audit bảo mật toàn diện, sửa avatar-logout, tách chế độ Classic/AR, chống copy + chống DevTools, responsive mobile
+
+Objective:
+User: (1) audit bảo mật toàn bộ dự án và viết báo cáo; (2) click logo "WChem
+AR" phải về trang chủ; (3) click avatar không được đăng xuất; (4) tách phòng
+thí nghiệm thành 2 chế độ Classic (chuột/cảm ứng) và AR (camera); (5) chặn
+sao chép nội dung; (6) chặn console/DevTools; (7) mobile: chữ không biến mất,
+lab.html phải dùng được trên điện thoại (trước đây quá nhỏ).
+
+Root cause avatar-logout (tái hiện bằng Playwright, /tmp/opencode/repro-down.js):
+ChemLabClient.init() gọi signOut() với MỌI lỗi — kể cả lỗi mạng/5xx khi Render
+cold start → token bị xóa sạch trước khi người dùng click avatar.
+
+Done:
+- backend/chemlab-client.js: request() gắn err.status; init() chỉ signOut() khi
+  401 (lỗi mạng giữ nguyên phiên).
+- js/landing.js + profile.html: safeAttr()/safeAvatar() chặn stored XSS qua
+  avatar (chỉ data:image png/jpe?g/gif/webp base64 hoặc http(s)).
+- js/card-nav.js: logo-container role=link, Enter/Space, click → index.html;
+  updateCta render trong span .card-nav-cta-text (giữ CTA nhìn thấy trên mobile).
+- js/anti-debug.js (MỚI): chặn F12/Ctrl+Shift+I/J/C/Ctrl+U/S, vô hiệu console,
+  phát hiện DevTools mở; thêm vào index.html, lab.html, profile.html.
+- lab.html + js/lab.js: chế độ Classic (mouse/touch) và AR (camera) qua
+  #lab-modeClassic / #lab-modeAR + #lab-mode-badge / #lab-modeChip; overlay
+  chọn chế độ thay cho nút "Bắt đầu theo dõi tay".
+- js/lab-scene.js: _seedLayout() seed theo chiều rộng bench — ≥720px giữ hàng
+  đơn như cũ, <720px dùng lưới 2 cột; _fitSeeds() chỉnh seed chưa kéo trên resize.
+- CSS: user-select:none toàn trang (trừ input/textarea) — chống copy; @media
+  mobile cho lab.css (sidebar 64px, console xếp dọc, nút chọn chế độ xếp cột,
+  font chữ dụng cụ to hơn); landing.css mobile (title clamp, nút toàn chiều
+  rộng, khoảng cách); card-nav.css hiển thị CTA (avatar/sign-in) trên mobile.
+- docs/SECURITY-AUDIT-REPORT.md (MỚI): báo cáo đầy đủ — JWT secret
+  change-me-in-production, không rate limiting auth, CSP unsafe-inline,
+  avatar maxlength 500000 + stored XSS, .env.local key phát triển, MongoDB
+  không auth + cổng 27017 công khai, account enumeration, thiếu security
+  headers static.
+
+Expected Result:
+Click logo về index.html; click avatar giữ phiên đăng nhập kể cả khi backend
+chậm; lab chọn được Classic/AR; không copy được nội dung; F12/console bị chặn;
+lab dùng được trên mobile (bench 2 cột, sidebar gọn).
+
+Success Criteria:
+- Playwright: repro-avatar PASS (avatar → /profile, token sống), repro-down
+  PASS (backend down → token KHÔNG bị xóa), repro-lab PASS (picker hiện,
+  chọn Classic → overlay ẩn, badge CLASSIC, mobile bench 291px, 4 seed lưới
+  2 cột), 0 console errors.
+- npm test 90/90 xanh (gồm test resize re-fit).
+- STATE.md + loop-run-log.md + docs/SECURITY-AUDIT-REPORT.md cập nhật.
+
+Dependencies:
+T-065 (overshoot braking) — DONE
+
+Priority:
+High
 
 Task ID:
 T-065
@@ -1541,6 +1601,29 @@ tolerance fix in _hovered(), _onDragStart uncouple on tool-lift,
 spawnNode state init extended with coupling fields. Verified 65/65
 (harness 13/13 + lab-scene 29/29 + lab-collide 23/23); eslint clean.
 Next: T-054 Layer 3 chemistry engine (lab-chem.js reactions + animation).
+
+# ============================================================================
+# ITERATION 81 LOG — 2026-08-05 (T-066)
+# ============================================================================
+T-066 DONE: (1) Security audit — docs/SECURITY-AUDIT-REPORT.md: JWT secret
+"change-me-in-production" (docker-compose.yml) + fallback trong auth.js; không
+rate limiting /api/auth; CSP unsafe-inline (app.js); avatar maxlength 500000 +
+stored XSS qua avatar (đã fix frontend safeAvatar/safeAttr); .env.local chứa
+OPENROUTER/INSFORGE key (gitignored, cần rotate); mongo:7 không auth, cổng
+27017 publish 0.0.0.0; account enumeration; thiếu security headers static.
+(2) Avatar-logout root cause: ChemLabClient.init() signOut() với mọi lỗi →
+chỉ signOut khi 401 (repro-down.js PASS: backend down token sống).
+(3) Logo → home: card-nav.js role=link + Enter/Space + click index.html.
+(4) Lab split Classic/AR: mode picker overlay, badge + chip, AR → startTracking,
+Classic → mouse/touch (repro-lab.js PASS, 0 console errors).
+(5) Anti-copy: user-select:none toàn trang; anti-debug.js mới (F12/Ctrl+Shift+I
+/J/C/U/S chặn, console vô hiệu, phát hiện DevTools) — 3 trang đều include.
+(6) Mobile: lab.css @media (sidebar 64px, console dọc, mode buttons cột, font
+node 13px), landing.css 640px (title clamp 1.9rem, buttons 100%), card-nav.css
+CTA hiện trên mobile, lab-scene _seedLayout 2 cột <720px + _fitSeeds resize.
+Kiểm chứng: npm test 90/90 xanh; repro-avatar/repro-down/repro-lab PASS;
+index+profile+lab 0 console errors. Next: T-067 (khuyến nghị bảo mật: JWT
+secret mạnh + rate limit + MongoDB auth nếu user chấp thuận).
 
 Do NOT restart the project.
 

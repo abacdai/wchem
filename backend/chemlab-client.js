@@ -37,7 +37,10 @@ class ChemLabClient {
       this.user = res.user;
       this._persist();
     } catch (err) {
-      this.signOut();
+      // Chỉ token hết hạn/không hợp lệ (401) mới được xóa phiên. Lỗi mạng
+      // hoặc backend tạm ngưng (Render cold start) KHÔNG được đăng xuất —
+      // giữ phiên cache để user không bị mất tài khoản khi click avatar.
+      if (err && err.status === 401) this.signOut();
     }
   }
 
@@ -60,7 +63,9 @@ class ChemLabClient {
       const details = body.details
         ? Object.values(body.details).join(' · ')
         : '';
-      throw new Error(body.error || details || 'Request failed (' + response.status + ')');
+      const err = new Error(body.error || details || 'Request failed (' + response.status + ')');
+      err.status = response.status;
+      throw err;
     }
     return body;
   }

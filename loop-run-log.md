@@ -2478,3 +2478,41 @@ Docs: STATE.md updated (T-030 done, iteration 31), taskflow/README.md created.
   gesture_tracking 13/13, total 67/67. eslint clean.
 - STATE.md updated: T-053 marked DONE, T-054 set as current task,
   test counts updated to 67/67, resume checkpoint updated.
+
+--- Iteration 81: T-066 Bảo mật + UX tổng hợp (DONE) ---
+
+- Task: T-066 — (1) audit bảo mật toàn dự án + báo cáo; (2) logo → home;
+  (3) avatar không đăng xuất; (4) tách lab Classic/AR; (5) chống copy;
+  (6) chống console/DevTools; (7) mobile lab.html + landing.
+- Files modified:
+  - backend/chemlab-client.js: request() gắn err.status; init() chỉ signOut()
+    khi 401 — giữ phiên khi lỗi mạng (root cause avatar-logout).
+  - js/landing.js: onCtaClick không signOut khi đã đăng nhập; updateAuthUI dùng
+    safeAttr()/safeAvatar() chống stored XSS qua avatar.
+  - js/card-nav.js: logo-container role=link tabindex=0 Enter/Space/click →
+    index.html; updateCta bọc text trong span .card-nav-cta-text.
+  - js/anti-debug.js (mới): chặn phím tắt DevTools, vô hiệu console, phát hiện
+    DevTools mở (sweep 900ms, bỏ qua khi tab ẩn).
+  - index.html / profile.html / lab.html: include anti-debug.js; lab.html +
+    profile.html thêm #lab-modeClassic/#lab-modeAR + badge/chip; profile.html
+    avatar sanitize.
+  - js/lab.js: startClassicMode()/startARMode()/openModePicker() — overlay chọn
+    chế độ, badge CLASSIC/AR, AR → startTracking(), stop → mở lại picker.
+  - js/lab-scene.js: _seedLayout() (≥720px hàng đơn như cũ, <720px lưới 2 cột
+    theo kích thước dụng cụ) + _fitSeeds() trên resize; seedSample/reset dùng
+    chung layout.
+  - css/lab.css: user-select:none; .lab-mode-picker/.lab-mode-badge/
+    .lab-mode-chip; @media 768px (sidebar 64px, console dọc, actions cột,
+    node 13px) + 420px (icon-only tab).
+  - css/landing.css: user-select:none; @media 640px (title clamp, buttons
+    100%, section padding, hero-stats).
+  - css/card-nav.css: CTA hiển thị trên mobile (min 44px, avatar tròn) thay vì
+    display:none.
+  - docs/SECURITY-AUDIT-REPORT.md (mới): 9 phát hiện (3 cao, 3 trung bình,
+    3 thấp) + 2 bug UX bảo mật đã sửa + 7 khuyến nghị ưu tiên.
+- Test results: npm test 90/90 xanh; Playwright repro-avatar PASS (avatar →
+  /profile, token sống, 0 console errors), repro-down PASS (backend down →
+  token KHÔNG bị xóa), repro-lab PASS (picker hiện, Classic → badge CLASSIC,
+  mobile sidebar 64px, bench 291px, 4 seed lưới 2 cột, 0 console errors);
+  desktop 22 node (4 seed + 18 chờ tab) không đổi.
+- STATE.md updated: T-066 DONE, iteration 81, resume checkpoint updated.

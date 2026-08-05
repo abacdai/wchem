@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>(function(){try{var t=localStorage.getItem('wchem-theme');if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
 <meta name="description" content="Trang cá nhân WChem AR — quản lý tài khoản.">
 <meta name="theme-color" content="#020617">
@@ -106,6 +106,7 @@
   </div>
 </section>
 
+<script src="js/anti-debug.js"></script>
 <script src="js/theme.js"></script>
 <script>
   if (!localStorage.getItem('chemlab:token')) { location.href = 'index.html'; }
@@ -119,12 +120,24 @@
     try { return 'Tham gia: ' + new Date(iso).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long' }); } catch (e) { return ''; }
   }
 
+  function safeAvatar(avatar) {
+    var a = String(avatar || '');
+    if (/^data:image\/(png|jpe?g|gif|webp);base64,/i.test(a)) return a;
+    if (/^https?:\/\//i.test(a)) return a;
+    return '';
+  }
+
+  function safeAttr(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
   function fillProfile(user) {
     var u = user || {};
     var email = u.email || '';
     var avatarEl = document.getElementById('profile-avatar');
-    if (u.avatar) {
-      avatarEl.innerHTML = '<img src="' + u.avatar + '" alt="Avatar" style="width:100%;height:100%;object-fit:cover;">';
+    if (safeAvatar(u.avatar)) {
+      avatarEl.innerHTML = '<img src="' + safeAvatar(u.avatar) + '" alt="Avatar" style="width:100%;height:100%;object-fit:cover;">';
     } else {
       avatarEl.innerHTML = '';
       avatarEl.textContent = email ? email.charAt(0).toUpperCase() : '?';
@@ -139,10 +152,11 @@
   function renderNavAvatar() {
     var user = chemlabClient.user || {};
     if (!authBtn) return;
+    var av = safeAvatar(user.avatar);
     authBtn.classList.add('nav-avatar-btn');
-    authBtn.innerHTML = user.avatar
-      ? '<img class="nav-avatar-img" src="' + user.avatar + '" alt="Avatar">'
-      : '<span class="nav-avatar" role="img" aria-label="Trang cá nhân">' + (user.email || '?').charAt(0).toUpperCase() + '</span>';
+    authBtn.innerHTML = av
+      ? '<img class="nav-avatar-img" src="' + av + '" alt="Avatar">'
+      : '<span class="nav-avatar" role="img" aria-label="Trang cá nhân">' + safeAttr((user.email || '?').charAt(0).toUpperCase()) + '</span>';
     authBtn.onclick = function () { location.href = 'profile.html'; };
   }
 

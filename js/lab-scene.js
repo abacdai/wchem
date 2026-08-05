@@ -309,6 +309,7 @@
       window.addEventListener('resize', function () {
         self._rectInvalidated = true;
         self._fitStrips();
+        self._fitSeeds();
       });
       this._rectWired = true;
     }
@@ -520,15 +521,63 @@
     while (this.root.children.length) this.root.removeChild(this.root.children[0]);
   };
 
+  /* Vị trí seed thích ứng: desktop (≥720px) giữ nguyên hàng đơn
+     (80 + i*128, y=60) — bảo toàn hành vi cũ; màn hình hẹp dùng 2 cột
+     để mọi dụng cụ nằm trong bench thay vì tràn ra ngoài màn hình. */
+  LabScene.prototype._seedLayout = function () {
+    var rect = this._containerRect();
+    var width = rect ? rect.width : 1280;
+    var i;
+    if (width >= 720) {
+      var desktop = [];
+      for (i = 0; i < SAMPLE_ITEMS.length; i++) desktop.push({ x: 80 + i * 128, y: 60 });
+      return desktop;
+    }
+    var cols = 2;
+    var pad = 18;
+    var gap = 14;
+    var cellW = (width - pad * 2 - gap) / cols;
+    var positions = [];
+    var y = 14;
+    for (i = 0; i < SAMPLE_ITEMS.length; i++) {
+      var spec = SAMPLE_ITEMS[i];
+      var col = i % cols;
+      if (col === 0 && i > 0) {
+        y = positions[i - 1].y + SAMPLE_ITEMS[i - 1].h + 18;
+        if (i >= 2) y = Math.max(y, positions[i - 2].y + SAMPLE_ITEMS[i - 2].h + 18);
+      }
+      var x = Math.max(10, pad + col * (cellW + gap) + (cellW - spec.w) / 2);
+      positions.push({ x: x, y: y });
+    }
+    return positions;
+  };
+
+  /* Đưa seed chưa được kéo về vị trí chuẩn mới khi viewport đổi kích thước */
+  LabScene.prototype._fitSeeds = function () {
+    if (!this._seedItems.length || !this._lastSeedLayout) return;
+    var layout = this._seedLayout();
+    var i;
+    for (i = 0; i < this._seedItems.length && i < this._lastSeedLayout.length; i++) {
+      var old = this._lastSeedLayout[i];
+      var seed = this._seedItems[i];
+      if (seed.x === old.x && seed.y === old.y) {
+        seed.setPosition(layout[i].x, layout[i].y);
+      }
+    }
+    this._seedOrigin = layout.slice();
+    this._lastSeedLayout = layout;
+    if (!this.opts.snapSlots) this._snapSlots = layout.slice();
+  };
+
   LabScene.prototype.seedSample = function () {
-    var n = SAMPLE_ITEMS.length;
+    var layout = this._seedLayout();
     this._seedItems = [];
     this._seedOrigin = [];
-    for (var i = 0; i < n; i++) {
+    for (var i = 0; i < SAMPLE_ITEMS.length; i++) {
       var spec = SAMPLE_ITEMS[i];
       var node = this.spawnNode(spec.type, {
-        x: 80 + i * 128,
-        y: 60,
+        x: layout[i].x,
+        y: layout[i].y,
         w: spec.w,
         h: spec.h,
         label: spec.label,
@@ -537,10 +586,11 @@
         style: GLASSWARE_STYLES[spec.type],
       });
       this._seedItems.push(node);
-      this._seedOrigin.push({ x: 80 + i * 128, y: 60 });
+      this._seedOrigin.push(layout[i]);
     }
+    this._lastSeedLayout = layout;
     /* Vị trí chuẩn của các dụng cụ mẫu = snap slots mặc định (T-048). */
-    if (!this.opts.snapSlots) this._snapSlots = this._seedOrigin.slice();
+    if (!this.opts.snapSlots) this._snapSlots = layout.slice();
   };
 
   /* Snap: nam châm sống — kéo đến gần slot (khoảng cách giữa tâm, theo

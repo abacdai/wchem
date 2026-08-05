@@ -32,6 +32,7 @@
         <div class="lab-sidebar-sub">Phòng thí nghiệm ảo</div>
       </div>
     </div>
+    <button id="lab-mode-badge" class="lab-mode-badge" hidden title="Chọn chế độ thí nghiệm" aria-label="Chọn chế độ thí nghiệm">CLASSIC</button>
     <div class="lab-tab" data-tab="demo"><span class="material-symbols-outlined" aria-hidden="true">science</span><span>Thí nghiệm</span></div>
     <div class="lab-tab" data-tab="calibration"><span class="material-symbols-outlined" aria-hidden="true">visibility</span><span>Hiệu chỉnh</span></div>
     <div class="lab-tab" data-tab="about"><span class="material-symbols-outlined" aria-hidden="true">info</span><span>Hướng dẫn</span></div>
@@ -46,10 +47,28 @@
       <button id="lab-resetBench" class="lab-panel-btn" style="position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:100001;" title="Đưa các dụng cụ về vị trí chuẩn" aria-label="Reset bàn thí nghiệm">
         <span class="material-symbols-outlined" style="font-size:16px;" aria-hidden="true">restart_alt</span> Reset bàn
       </button>
+      <button id="lab-modeChip" class="lab-mode-chip" hidden aria-label="Đổi chế độ phòng thí nghiệm" title="Đổi chế độ phòng thí nghiệm">
+        <span class="material-symbols-outlined" style="font-size:15px;" aria-hidden="true">tune</span>
+        <span id="lab-modeChipText">CLASSIC</span>
+      </button>
       <div id="lab-startOverlay" class="lab-start-overlay">
-        <button id="lab-startBtn" class="lab-start-btn">
-          <span class="material-symbols-outlined" aria-hidden="true">videocam</span> Bắt đầu theo dõi tay
-        </button>
+        <div class="lab-mode-picker">
+          <div class="lab-mode-title">
+            <span class="material-symbols-outlined" aria-hidden="true">science</span>
+            Chọn chế độ phòng thí nghiệm
+          </div>
+          <div class="lab-mode-actions">
+            <button id="lab-modeClassic" class="lab-start-btn lab-start-btn--classic">
+              <span class="material-symbols-outlined" aria-hidden="true">mouse</span>
+              Classic — chuột / cảm ứng
+            </button>
+            <button id="lab-modeAR" class="lab-start-btn">
+              <span class="material-symbols-outlined" aria-hidden="true">front_hand</span>
+              AR — điều khiển bằng tay
+            </button>
+          </div>
+          <p class="lab-mode-hint">Classic: kéo thả dụng cụ trực tiếp bằng chuột hoặc ngón tay. AR: bật camera và chụm ngón cái + trỏ để kéo thả.</p>
+        </div>
       </div>
       <div id="lab-viewportHint">
         <div class="lab-ring"></div>
@@ -146,6 +165,7 @@
 <script>window.HAND_SCOPE_MANUAL_START = true;</script>
 <script>window.HANDSCOPE_ENABLE_GAZE = true;</script>
 <script>window.HANDSCOPE_TARGET_SELECTOR = '#lab-bench';</script>
+<script src="js/anti-debug.js"></script>
 <script src="js/pupil-detector.js"></script>
 <script src="js/gaze-pupil.js"></script>
 <script src="js/hand-bridge.js"></script>

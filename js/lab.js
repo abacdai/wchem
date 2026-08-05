@@ -175,14 +175,55 @@
     }
   });
 
-  /* ---------- Start button ---------- */
-  document.getElementById('lab-startBtn').addEventListener('click', function () {
+  /* ---------- Chế độ thí nghiệm: Classic (chuột/cảm ứng) | AR (camera) ---------- */
+  function setModeBadge(mode) {
+    var badge = document.getElementById('lab-mode-badge');
+    var chip = document.getElementById('lab-modeChip');
+    var chipText = document.getElementById('lab-modeChipText');
+    var label = mode === 'ar' ? 'AR' : 'CLASSIC';
+    if (badge) {
+      badge.textContent = label;
+      badge.hidden = false;
+      badge.classList.toggle('lab-mode-badge--ar', mode === 'ar');
+    }
+    if (chip) {
+      chip.hidden = false;
+      if (chipText) chipText.textContent = label;
+    }
+  }
+
+  function openModePicker() {
+    if (window.HandScope && window.HandScope.running) window.HandScope.stop();
+    stopTrackingBtn.hidden = true;
+    calibrateGazeBtn.disabled = true;
+    gazeState.textContent = 'Chưa khởi động camera';
+    document.getElementById('lab-startOverlay').classList.remove('lab-hidden');
+    log('Chọn chế độ thí nghiệm');
+  }
+
+  function startClassicMode() {
+    document.getElementById('lab-startOverlay').classList.add('lab-hidden');
+    stopTrackingBtn.hidden = true;
+    setModeBadge('classic');
+    log('Chế độ Classic: kéo thả dụng cụ bằng chuột / cảm ứng');
+    toast('Chế độ Classic');
+  }
+
+  function startARMode() {
     document.getElementById('lab-startOverlay').classList.add('lab-hidden');
     stopTrackingBtn.hidden = false;
+    setModeBadge('ar');
     gazeState.textContent = 'Đang tải mô hình theo dõi...';
     startTracking();
-  });
+  }
+
+  document.getElementById('lab-modeClassic').addEventListener('click', startClassicMode);
+  document.getElementById('lab-modeAR').addEventListener('click', startARMode);
+  var modeBadge = document.getElementById('lab-mode-badge');
+  if (modeBadge) modeBadge.addEventListener('click', openModePicker);
+  var modeChip = document.getElementById('lab-modeChip');
+  if (modeChip) modeChip.addEventListener('click', openModePicker);
 
   /* ---------- Init ---------- */
-  log('HandScope lab đã tải xong — nhấn "Bắt đầu theo dõi tay" để bật camera');
+  log('HandScope lab đã tải xong — chọn chế độ Classic hoặc AR');
 })();

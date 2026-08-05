@@ -22,7 +22,7 @@
             '<div class="hamburger-line" style="background-color:' + menuColor + '"></div>' +
             '<div class="hamburger-line" style="background-color:' + menuColor + '"></div>' +
           '</div>' +
-          '<div class="logo-container" style="display:flex;align-items:center;gap:10px;">' +
+          '<div class="logo-container" role="link" tabindex="0" aria-label="' + (opts.logoAriaLabel || 'Về trang chủ') + '" title="' + (opts.logoAriaLabel || 'Về trang chủ') + '" style="display:flex;align-items:center;gap:10px;cursor:pointer;">' +
             '<img src="' + logo + '" alt="' + logoAlt + '" class="logo" style="width:28px;height:28px;border-radius:50%;">' +
             (logoText ? '<span class="logo-text" style="color:' + menuColor + ';font-weight:700;font-size:18px;">' + logoText + '</span>' : '') +
           '</div>' +
@@ -55,6 +55,23 @@
     var themeBtn = container.querySelector('#card-nav-theme-btn');
     var contentEl = container.querySelector('.card-nav-content');
     var cards = container.querySelectorAll('.nav-card');
+
+    /* Click logo / "WChem AR" → về trang chủ */
+    var logoEl = container.querySelector('.logo-container');
+    var logoHref = opts.logoHref || 'index.html';
+    if (logoEl) {
+      logoEl.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        location.href = logoHref;
+      });
+      logoEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          location.href = logoHref;
+        }
+      });
+    }
 
     var isExpanded = false;
     var cardsArr = Array.prototype.slice.call(cards);
@@ -162,7 +179,7 @@
       close: function () { if (isExpanded) toggleMenu(); },
       updateCta: function(text, clickHandler) {
         if (ctaBtn) {
-          ctaBtn.textContent = text;
+          ctaBtn.innerHTML = '<span class="card-nav-cta-text">' + String(text).replace(/</g, '&lt;') + '</span>';
           if (clickHandler) {
             ctaBtn.onclick = clickHandler;
           }

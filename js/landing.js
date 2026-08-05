@@ -59,7 +59,7 @@
         onCtaClick: function () {
           var client = window.chemlabClient;
           if (client && client.isAuthenticated()) {
-            client.signOut().then(updateAuthUI);
+            location.href = 'profile.html';
           } else {
             openSignInModal();
           }
@@ -129,21 +129,35 @@
   }
 
   /* ─── Auth UI ─── */
+  function safeAttr(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  /* Chỉ chấp nhận avatar là ảnh hợp lệ (data URL ảnh hoặc http(s)) để chặn
+     phá vỡ thuộc tính src bằng `" onerror=...` (stored XSS). */
+  function safeAvatar(avatar) {
+    var a = String(avatar || '');
+    if (/^data:image\/(png|jpe?g|gif|webp);base64,/i.test(a)) return a;
+    if (/^https?:\/\//i.test(a)) return a;
+    return '';
+  }
+
   function updateAuthUI() {
     var client = window.chemlabClient;
     var navRoot = document.getElementById('card-nav-root');
 
-    if (client && client.isAuthenticated() && client.user) {
-      var email = client.user.email || 'Người dùng';
-      var avatar = client.user.avatar || '';
+    if (client && client.isAuthenticated()) {
+      var email = (client.user && client.user.email) || '';
+      var avatar = safeAvatar(client.user && client.user.avatar);
       if (navRoot && navRoot.cardNav) {
         var ctaBtn = navRoot.querySelector('.card-nav-cta-button:last-child');
         if (ctaBtn) {
           ctaBtn.classList.add('nav-avatar-btn');
           ctaBtn.innerHTML = avatar
-            ? '<img class="nav-avatar-img" src="' + avatar + '" alt="Mở trang cá nhân" title="' + email + '">'
-            : '<span class="nav-avatar" role="img" aria-label="Mở trang cá nhân" title="' + email + '">' +
-              (email || '?').charAt(0).toUpperCase() + '</span>';
+            ? '<img class="nav-avatar-img" src="' + avatar + '" alt="Mở trang cá nhân" title="' + safeAttr(email) + '">'
+            : '<span class="nav-avatar" role="img" aria-label="Mở trang cá nhân" title="' + safeAttr(email) + '">' +
+              safeAttr((email || '?').charAt(0).toUpperCase()) + '</span>';
           ctaBtn.onclick = function () { location.href = 'profile.html'; };
         }
       }
