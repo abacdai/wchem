@@ -43,6 +43,7 @@
             textColor: '#fff',
             links: [
               { label: 'Mở Lab', ariaLabel: 'Mở Phòng Thí Nghiệm', href: 'lab.html' },
+              { label: 'Lab Classic (Cambridge)', ariaLabel: 'Lab Classic Cambridge', href: 'classic-lab/index.html' },
               { label: 'Bảng Xếp Hạng', ariaLabel: 'Leaderboard', href: '#' },
             ]
           },

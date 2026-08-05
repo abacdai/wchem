@@ -2598,3 +2598,19 @@ Docs: STATE.md updated (T-030 done, iteration 31), taskflow/README.md created.
 - chem_lab (MIT, Vite/React, past papers 9701, marking, PDF) — nếu muốn
   tích hợp làm Classic mode: cần bàn phạm vi (trang riêng / iframe / nâng
   cấp lab-scene hiện tại) trước khi code.
+
+--- Iteration 83b: T-068 nhúng Lab Classic Cambridge (DONE) ---
+
+- Theo lựa chọn của user (Nhúng ngoài — trang riêng): tích hợp chem_lab
+  (github.com/nsriram/chem_lab, MIT) dạng pre-built vào thư mục
+  classic-lab/ tại repo root, Express static phục vụ trực tiếp tại
+  /classic-lab/ (không sửa server.js).
+- Build: clone → npm install → npm run build -- --base=/classic-lab/ (asset
+  nằm trong /classic-lab/assets, không đụng root). Copy dist/* + LICENSE.
+- classic-lab/README.md: ghi rõ nguồn gốc, cách build lại, lưu ý CSP.
+- Liên kết: js/landing.js nav "Tính năng" thêm "Lab Classic (Cambridge)"
+  → classic-lab/index.html; index.html thêm feature-card--link mới (23 past
+  papers, auto-marking, PDF); lab.html hint thêm link .lab-hint-link.
+- Kiểm chứng Playwright: /classic-lab/index.html load 0 console errors,
+  0 request failed, fonts loaded, title đúng; index.html có feature card +
+  nav link. Jest 52/52, frontend 90/90, diff sạch.

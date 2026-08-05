@@ -1774,3 +1774,18 @@ Continue only.
 # ============================================================================
 # END OF STATE
 # ============================================================================
+# ============================================================================
+# ITERATION 83b LOG — 2026-08-05 (T-068 bổ sung: classic-lab)
+# ============================================================================
+T-068 supplement (nhúng chem_lab): clone + build chem_lab (MIT) với base
+/classic-lab/, đặt dist tại classic-lab/ (repo root) — Express static phục
+vụ /classic-lab/ mà không cần đổi server; thêm LICENSE + README nguồn.
+Link mới: nav "Tính năng" → classic-lab/index.html; feature-card--link trên
+landing; .lab-hint-link trong picker lab.html. Kiểm chứng: Playwright
+/classic-lab/ 0 console errors + 0 request failed + fonts loaded; jest 52/52;
+frontend 90/90. Lưu ý vận hành: nâng cấp = build lại tại repo gốc chem_lab
+với --base=/classic-lab/ rồi copy dist/* vào classic-lab/.
+
+Do NOT restart the project.
+
+Continue only.

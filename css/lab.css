@@ -549,6 +549,12 @@ input, textarea {
   color: #b1c7f5;
   text-align: center;
 }
+.lab-hint-link {
+  color: #7f95ff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.lab-hint-link:hover { color: #aab9ff; }
 
 .lab-mode-soon {
   display: inline-block;
