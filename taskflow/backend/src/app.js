@@ -11,6 +11,8 @@ const { errorHandler, notFound } = require('./middleware/errorHandler');
 
 function createApp() {
   const app = express();
+  // Đứng sau proxy (Render/Vercel) để req.ip lấy đúng IP khách thay vì proxy.
+  app.set('trust proxy', 1);
   // Helmet's default CSP (`script-src 'self'`, `script-src-attr 'none'`) blocks
   // the WChem HTML app: its inline theme/auth scripts, inline event handlers,
   // the GSAP CDN, and the whole MediaPipe camera pipeline (dynamic import +

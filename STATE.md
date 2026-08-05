@@ -14,7 +14,7 @@ Status:
 🟢 Active Development
 
 Last Updated:
-2026-08-05 16:10:00 +07:00
+2026-08-05 17:45:00 +07:00
 
 Current Cadence:
 Minimal Loop
@@ -23,7 +23,7 @@ Current Phase:
 DONE
 
 Iteration:
-81
+82
 
 # ============================================================================
 # MASTER GOAL
@@ -40,6 +40,67 @@ The AI MUST perform only minimal safe modifications.
 # ============================================================================
 # CURRENT TASK
 # ============================================================================
+
+Task ID:
+T-067
+
+Task Title:
+Triển khai khuyến nghị bảo mật từ báo cáo: JWT secret, rate limit, avatar server-side, MongoDB auth, security headers
+
+Objective:
+User: "Làm đi" — thực hiện các khuyến nghị trong docs/SECURITY-AUDIT-REPORT.md
+cần sửa code/infra: (1) JWT secret mạnh + bỏ fallback; (2) rate limiting
+/ api/auth; (3) avatar validation phía server; (4) MongoDB auth + không lộ
+cổng; (5) security headers cho static host.
+
+Done:
+- src/middleware/rateLimit.js (MỚI, zero-dep): bucket in-memory theo IP, key
+  riêng theo endpoint (register 30, login 10, password 10 /phút/IP), header
+  X-RateLimit-* + Retry-After, sweep bucket hết hạn mỗi 60s. Bug phát hiện
+  trong lúc test: các limiter chia sẻ bucket theo IP → sửa key = label+':'+ip.
+- src/middleware/auth.js: resolveJwtSecret() — production fail-fast khi thiếu
+  JWT_SECRET; dev giữ fallback + warning rõ ràng.
+- src/routes/auth.routes.js: mount registerLimit/loginLimit/passwordLimit;
+  PUT /me từ chối avatar không khớp regex (data URL ảnh png/jpg/gif/webp hoặc
+  http(s)) hoặc >200KB.
+- src/models/User.js: avatar maxlength 500000 → 200000.
+- src/app.js: app.set('trust proxy', 1) — IP khách đúng sau Render/Vercel.
+- tests/rateLimit.test.js (MỚI): 3 test 429 cho login/register/password.
+- Docker: container wchem-mongo dựng lại với mongod --auth (root user
+  wchem_admin đã tạo trước khi bật auth), bind 127.0.0.1:27017 thay vì
+  0.0.0.0, volume wchem-mongo-data giữ nguyên (dữ liệu kiểm chứng OK).
+  docker-compose.yml: JWT_SECRET + MONGO_ROOT_PASSWORD từ .env gốc (gitignored,
+  tạo sẵn, chmod 600) qua ${VAR:?} — không hardcode; mongo không publish port;
+  app NODE_ENV=production + MONGODB_URI kèm authSource=admin.
+- .env.example (MỚI, gốc) + taskflow/.env.example: hướng dẫn sinh secret.
+- vercel.json: headers nosniff/SAMEORIGIN/strict-origin-when-cross-origin/
+  Permissions-Policy cho mọi route.
+- Phát hiện quan trọng: DB production thực tế là MongoDB Atlas
+  (taskflow/backend/.env, không bị git theo dõi) — local mongo chỉ là dư tàn
+  docker cũ; Atlas vốn đã có auth.
+- docs/SECURITY-AUDIT-REPORT.md: cập nhật trạng thái ✅/⏳ cho từng mục + ghi
+  chú vận hành (Render cần JWT_SECRET, migrate volume mongo cũ nếu dùng
+  docker compose).
+
+Expected Result:
+Auth API có rate limit, avatar chặn XSS ngay tại server, JWT không dùng secret
+mặc định, mongo local không lộ cổng và có auth, static host có security
+headers.
+
+Success Criteria:
+- jest backend 48/48 (45 cũ + 3 rate limit mới), eslint sạch, coverage đạt
+  ngưỡng (statements 84+, branches 75.5+).
+- npm test frontend 90/90 xanh.
+- E2E thực tế trên localhost:8000: register 201 (Atlas), avatar svg+onerror →
+  400, avatar png → 200, login lần 11 → 429, health ok.
+- repro-avatar.js PASS (frontend vẫn hoạt động đầy đủ sau thay đổi backend).
+- node --check + git diff --check sạch; STATE/log/report cập nhật.
+
+Dependencies:
+T-066 (audit + UX) — DONE
+
+Priority:
+High
 
 Task ID:
 T-066
@@ -1624,6 +1685,26 @@ CTA hiện trên mobile, lab-scene _seedLayout 2 cột <720px + _fitSeeds resize
 Kiểm chứng: npm test 90/90 xanh; repro-avatar/repro-down/repro-lab PASS;
 index+profile+lab 0 console errors. Next: T-067 (khuyến nghị bảo mật: JWT
 secret mạnh + rate limit + MongoDB auth nếu user chấp thuận).
+
+# ============================================================================
+# ITERATION 82 LOG — 2026-08-05 (T-067)
+# ============================================================================
+T-067 DONE (khuyến nghị bảo mật từ SECURITY-AUDIT-REPORT): rateLimit.js
+zero-dep (register 30 / login 10 / password 10 mỗi phút theo IP, key riêng
+từng endpoint — đã sửa bug share-bucket phát hiện khi test); auth.js
+fail-fast JWT khi NODE_ENV=production; avatar server-side (regex data URL
+ảnh/http(s) + 200KB) ở PUT /me + User.js maxlength 200000; trust proxy 1.
+Mongo local: tạo root user rồi dựng lại container mongod --auth, bind
+127.0.0.1:27017 (trước 0.0.0.0), volume giữ nguyên — phát hiện DB production
+thực ra là MongoDB Atlas (taskflow/backend/.env, gitignored). docker-compose:
+JWT_SECRET/MONGO creds từ .env gốc (đã tạo, gitignored, chmod 600) với
+${VAR:?}, mongo không publish port, NODE_ENV=production; vercel.json thêm
+security headers; .env.example gốc + taskflow/.env.example cập nhật. Kiểm
+chứng: jest 48/48 + eslint sạch, frontend 90/90, E2E curl (register 201,
+avatar xấu 400, avatar tốt 200, login thứ 11 → 429), repro-avatar PASS.
+Vận hành còn lại: đặt JWT_SECRET mạnh trên Render, rotate OPENROUTER/
+INSFORGE keys, migrate volume mongo cũ nếu dùng docker compose, gỡ
+unsafe-inline CSP (nợ kỹ thuật).
 
 Do NOT restart the project.
 

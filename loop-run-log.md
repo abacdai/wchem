@@ -2516,3 +2516,38 @@ Docs: STATE.md updated (T-030 done, iteration 31), taskflow/README.md created.
   mobile sidebar 64px, bench 291px, 4 seed lưới 2 cột, 0 console errors);
   desktop 22 node (4 seed + 18 chờ tab) không đổi.
 - STATE.md updated: T-066 DONE, iteration 81, resume checkpoint updated.
+
+--- Iteration 82: T-067 Triển khai khuyến nghị bảo mật (DONE) ---
+
+- Task: T-067 — JWT secret mạnh, rate limit auth, avatar server-side,
+  MongoDB auth, security headers static (theo docs/SECURITY-AUDIT-REPORT.md).
+- Files modified:
+  - taskflow/backend/src/middleware/rateLimit.js (mới, zero-dep): bucket
+    in-memory theo IP; key "label:ip" (đã sửa bug share-bucket khiến password
+    test dính 429); header X-RateLimit-* + Retry-After; sweep 60s.
+  - taskflow/backend/src/middleware/auth.js: resolveJwtSecret() fail-fast khi
+    NODE_ENV=production thiếu JWT_SECRET; dev fallback + warning.
+  - taskflow/backend/src/routes/auth.routes.js: register 30 / login 10 /
+    password 10 mỗi phút/IP; avatar regex (data:image png/jpe?g/gif/webp
+    base64 hoặc http(s)) + ≤200KB (400 kèm chi tiết).
+  - taskflow/backend/src/models/User.js: avatar maxlength 500000 → 200000.
+  - taskflow/backend/src/app.js: trust proxy 1.
+  - taskflow/backend/tests/rateLimit.test.js (mới): 3 test 429.
+  - docker-compose.yml: JWT_SECRET + MONGO_ROOT_PASSWORD từ .env gốc qua
+    ${VAR:?}; mongo không publish port; MONGO_INITDB_ROOT_*; app
+    NODE_ENV=production + MONGODB_URI authSource=admin.
+  - .env.example (mới, gốc) + taskflow/.env.example: hướng dẫn sinh secret.
+  - vercel.json: X-Content-Type-Options/X-Frame-Options/Referrer-Policy/
+    Permissions-Policy cho mọi route.
+  - docs/SECURITY-AUDIT-REPORT.md: cập nhật trạng thái ✅/⏳ + ghi chú vận hành.
+- Infra: container wchem-mongo dựng lại với mongod --auth (root user
+  wchem_admin tạo trước), bind 127.0.0.1:27017 (trước 0.0.0.0), volume
+  wchem-mongo-data giữ nguyên. Phát hiện: DB production là MongoDB Atlas
+  (taskflow/backend/.env, gitignored) — local mongo chỉ là tàn dư docker.
+- Server local :8000 khởi động lại (--env-file taskflow/backend/.env,
+  PORT=8000) — cẩn thận pkill -f khớp cả shell, curl thiếu --max-time làm
+  treo lệnh.
+- Test: jest 48/48, eslint sạch, coverage đạt ngưỡng; frontend 90/90;
+  E2E: register 201 (Atlas), avatar svg+onerror → 400, avatar png → 200,
+  login 11 lần → 429; repro-avatar PASS.
+- STATE.md updated: T-067 DONE, iteration 82.

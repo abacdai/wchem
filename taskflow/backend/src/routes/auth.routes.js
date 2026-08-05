@@ -2,10 +2,21 @@ const express = require('express');
 const User = require('../models/User');
 const { signToken, requireAuth } = require('../middleware/auth');
 const { validateRegister, validateLogin } = require('../middleware/validate');
+const { rateLimit } = require('../middleware/rateLimit');
 
 const router = express.Router();
 
-router.post('/register', validateRegister, async (req, res, next) => {
+/* Chống brute-force và spam đăng ký theo IP. */
+const registerLimit = rateLimit({ windowMs: 60 * 1000, max: 30, name: 'register' });
+const loginLimit = rateLimit({ windowMs: 60 * 1000, max: 10, name: 'login' });
+const passwordLimit = rateLimit({ windowMs: 60 * 1000, max: 10, name: 'password' });
+
+/* Chỉ chấp nhận avatar là data URL ảnh (png/jpg/gif/webp) hoặc http(s),
+   dưới 200KB — chặn stored XSS qua thuộc tính src và phình DB (T-066). */
+const AVATAR_RE = /^(data:image\/(png|jpe?g|gif|webp);base64,|https?:\/\/)/i;
+const AVATAR_MAX = 200000;
+
+router.post('/register', registerLimit, validateRegister, async (req, res, next) => {
   try {
     const existing = await User.findOne({ email: req.body.email }).collation({ locale: 'en', strength: 2 });
     if (existing) {
@@ -18,7 +29,7 @@ router.post('/register', validateRegister, async (req, res, next) => {
   }
 });
 
-router.post('/login', validateLogin, async (req, res, next) => {
+router.post('/login', loginLimit, validateLogin, async (req, res, next) => {
   try {
     const user = await User.findOne({ email: req.body.email }).select('+password');
     if (!user || !(await user.comparePassword(req.body.password))) {
@@ -69,8 +80,8 @@ router.put('/me', requireAuth, async (req, res, next) => {
       }
     }
     if (avatar !== undefined) {
-      if (typeof avatar !== 'string' || avatar.length > 500000) {
-        errors.avatar = 'Avatar must be an image data URL under 500KB';
+      if (typeof avatar !== 'string' || avatar.length > AVATAR_MAX || !AVATAR_RE.test(avatar)) {
+        errors.avatar = 'Avatar must be an image data URL (png/jpg/gif/webp) or http(s) URL under 200KB';
       } else {
         user.avatar = avatar;
       }
@@ -88,7 +99,7 @@ router.put('/me', requireAuth, async (req, res, next) => {
 });
 
 // Change own password (verify current password first)
-router.put('/me/password', requireAuth, async (req, res, next) => {
+router.put('/me/password', passwordLimit, requireAuth, async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body || {};
     if (typeof currentPassword !== 'string' || typeof newPassword !== 'string' || newPassword.length < 8) {

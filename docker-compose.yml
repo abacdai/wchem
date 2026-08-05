@@ -4,6 +4,12 @@ services:
     restart: unless-stopped
     volumes:
       - mongo-data:/data/db
+    # Xác thực Mongo (chỉ khởi tạo root user trên volume MỚI — xem
+    # docs/SECURITY-AUDIT-REPORT.md §2.6 để migrate volume cũ).
+    # Không publish cổng ra máy chủ: chỉ app trong mạng docker truy cập được.
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-wchem}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?Set MONGO_ROOT_PASSWORD in .env (see .env.example)}
 
   app:
     build: .
@@ -12,8 +18,9 @@ services:
       - "8000:8000"
     environment:
       - PORT=8000
-      - MONGODB_URI=mongodb://mongo:27017/taskflow
-      - JWT_SECRET=change-me-in-production
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://${MONGO_ROOT_USER:-wchem}:${MONGO_ROOT_PASSWORD}@mongo:27017/taskflow?authSource=admin
+      - JWT_SECRET=${JWT_SECRET:?Set JWT_SECRET in .env (see .env.example)}
     depends_on:
       - mongo
 
